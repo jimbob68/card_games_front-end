@@ -1,0 +1,42 @@
+.twenty-one-overlay {
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.twenty-one-results-modal {
+    background-color: darkgreen;
+    color: white;
+    font-size: 18px;
+    padding: 20px;
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    right: 15%;
+    bottom: 15%;
+    overflow: scroll;
+    border-radius: 10px;
+    border: solid 2px white;
+}
+
+.close-button {
+
+	background-color: rgb(202, 16, 131);
+	border-radius: 4px;
+	color: white;
+}
+
+
+@media screen and ( max-width: 420px){ 
+   .twenty-one-results-modal {
+        font-size: 18px;
+        padding: 10px;
+        top: 5%;
+        left: 5%;
+        right: 5%;
+        bottom: 5%;
+   } 
+}

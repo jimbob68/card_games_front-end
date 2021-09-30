@@ -1,0 +1,92 @@
+.blackjack-container {
+	background-color: #006400;
+	color: white;
+	min-height: 100vh;
+}
+.blackjack-container h1 {
+	margin: 0;
+	padding: 20px;
+}
+
+.small {
+	width: 60px;
+}
+
+.medium {
+	width: 80px;
+}
+.large {
+	width: 100px;
+}
+
+img {
+	width: 100px;
+}
+
+.hands-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+}
+
+.home-button {
+	background-color: rgb(202, 16, 131);
+	border-radius: 4px;
+	color: white;
+	margin-bottom: 20px;
+	margin-right: 10px;
+}
+
+.deal-button {
+	background-color: rgb(202, 16, 131);
+	border-radius: 4px;
+	color: white;
+	margin-left: 10px;
+}
+
+.deal-button:disabled{
+	background-color: rgb(230, 107, 183);
+	
+}
+
+.new-game-button {
+	background-color: rgb(202, 16, 131);
+	border-radius: 4px;
+	color: white;
+	margin-right: 10px;
+}
+
+.player-score-header {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	width: 50%;
+	margin: 20px auto 20px auto;
+}
+
+.rules-button {
+	background-color: rgb(202, 16, 131);
+	border-radius: 4px;
+	color: white;
+	margin-right: 10px;
+}
+
+.player-score-header p {
+	margin: 5px;
+}
+
+@media screen and (max-width: 420px){
+	.hands-container {
+	
+	grid-template-columns: 1fr;
+
+}
+/* img {
+	width: 60px;
+} */
+
+.player-score-header {
+	
+	grid-template-columns: 1fr;
+	width: 100%;
+}
+
+}

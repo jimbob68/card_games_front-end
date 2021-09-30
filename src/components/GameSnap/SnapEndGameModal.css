@@ -1,0 +1,67 @@
+.snap-modal-button {
+	
+	background-color: rgb(236, 164, 69);
+	border-radius: 4px;
+	color: black;
+	font-size: 16px;
+	padding: 5px;
+	margin: 5px auto 20px auto;
+	
+}
+
+.snap-modal-buttons-container {
+    margin-top: 50px;
+}
+
+.snap-overlay {
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+	z-index: 2;
+}
+
+.snap-end-game-modal {
+    padding-top: 50px;
+    text-align: center;
+}
+
+.snap-modal {
+	
+    background-color: darkslateblue;
+    color: white;
+    font-size: 18px;
+    padding: 20px;
+    position: absolute;
+    top: 18%;
+    left: 18%;
+    right: 18%;
+    bottom: 18%;
+    overflow: scroll;
+    border-radius: 10px;
+    border: solid 2px white;
+	z-index: 2;
+
+}
+
+@media screen and (max-width: 420px){
+	.snap-modal   {
+        font-size: 18px;
+        padding: 10px;
+        top: 5%;
+        left: 5%;
+        right: 5%;
+        bottom: 5%;
+
+   }
+   
+   .snap-end-game-modal {
+       padding-top: 100px;
+   }
+
+}
+
+
+
