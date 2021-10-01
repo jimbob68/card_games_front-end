@@ -36,13 +36,16 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
 
     useEffect(() => {
 		
-        fetchCards()
-        handleDealCards(1)
+        if(players[0].id === socket.id)fetchCards()
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
         })
 		
 	}, []);
+
+    useEffect(() => {
+        handleDealCards(1)
+    }, [deckOfCards])
 
     useEffect(() => {
         if(cardPot.length === numberOfPlayers){
