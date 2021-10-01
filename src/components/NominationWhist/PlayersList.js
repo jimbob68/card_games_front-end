@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react'
 
 
-const PlayersList = ({ socket, setPlayers, players }) => {
+const PlayersList = ({ socket, setPlayers, players, setStartGame }) => {
 
     useEffect(() => {
         console.log("socket:", socket)
-        
         socket.on("players-list", ({playersList}) => {
             setPlayers(playersList)
            console.log("playersList:", playersList)

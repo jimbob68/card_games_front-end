@@ -4,7 +4,7 @@ import './NominationWhist.css'
 
 // let socket
 
-const NominationWhist = () => {
+const NominationWhist = ({ players, setPlayers, socket }) => {
 
     const [ deckOfCards, setDeckOfCards ] = useState([])
     const [ numberOfPlayers, setNumberOfPlayers ] = useState(2)
@@ -37,6 +37,10 @@ const NominationWhist = () => {
     useEffect(() => {
 		
         fetchCards()
+        handleDealCards(1)
+        socket.on("hand", ({hand}) => {
+            setPlayerOneHand(hand)
+        })
 		
 	}, []);
 
@@ -66,36 +70,28 @@ const NominationWhist = () => {
         }
 
     const handleDealCards = (currentRoundVariable) => {
-        if(currentRound === 0) setCurrentRound(1)
-        let deck = deckOfCards;
-        console.log("currentRound:", currentRound)
-        setPlayerOneHand(deck.slice(0, (10 - currentRoundVariable + 1)));
-        // setPlayerTwoHand(deck.slice((10 - currentRoundVariable + 1), (20 - currentRoundVariable + 1)))
+
+        players.forEach((player, index) => {
+            const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
+            socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
+        })
+        // if(currentRound === 0) setCurrentRound(1)
+        // let deck = deckOfCards;
+        // console.log("currentRound:", currentRound)
+        // setPlayerOneHand(deck.slice(0, (10 - currentRoundVariable + 1)));
+        
         // if(numberOfPlayers >= 2){
-        // setPlayerTwoHand(deck.slice((10 - currentRoundVariable + 1), (10 - currentRoundVariable + 1) + 10 - currentRoundVariable + 1))
+        // setPlayerTwoHand(deck.slice((10), (20 - currentRoundVariable + 1)))
         // }
         // if(numberOfPlayers >= 3){
-        // setPlayerThreeHand(deck.slice((20 - currentRoundVariable + 1), (20 - currentRoundVariable + 1) + 20 - currentRoundVariable + 1))
+        // setPlayerThreeHand(deck.slice((20), (30 - currentRoundVariable + 1)))
         // }
         // if(numberOfPlayers >= 4){
-        // setPlayerFourHand(deck.slice((30 - currentRoundVariable + 1), (30 - currentRoundVariable + 1) + 30 - currentRoundVariable + 1))
+        // setPlayerFourHand(deck.slice((30), (40 - currentRoundVariable + 1)))
         // }
         // if(numberOfPlayers >= 5){
-        // setPlayerFiveHand(deck.slice((40 - currentRoundVariable + 1), (40 - currentRoundVariable + 1) + 40 - currentRoundVariable + 1))
+        // setPlayerFiveHand(deck.slice((40), (50 - currentRoundVariable + 1)))
         // }
-
-        if(numberOfPlayers >= 2){
-        setPlayerTwoHand(deck.slice((10), (20 - currentRoundVariable + 1)))
-        }
-        if(numberOfPlayers >= 3){
-        setPlayerThreeHand(deck.slice((20), (30 - currentRoundVariable + 1)))
-        }
-        if(numberOfPlayers >= 4){
-        setPlayerFourHand(deck.slice((30), (40 - currentRoundVariable + 1)))
-        }
-        if(numberOfPlayers >= 5){
-        setPlayerFiveHand(deck.slice((40), (50 - currentRoundVariable + 1)))
-        }
 
     }
 

@@ -2,49 +2,43 @@ import React, { useState, useEffect } from 'react'
 import './SetUpPage.css'
 import io from "socket.io-client"
 import PlayersList from "./PlayersList.js"
+import NominationWhist from './NominationWhist.js'
 
 
 let socket
 
-const SetUpPage = ({ setCurrentGame, setName, setRoom, name, room }) => {
+const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, players, setPlayers }) => {
 
-    const [ players, setPlayers ] = useState([])
+    
     const [ joined, setJoined ] = useState(false)
-
+    const [ startGame, setStartGame ] = useState(false)
     const ENDPOINT = "localhost:5000"
 
     useEffect(() => {
-        
-        
+        if(joined){
+            socket.on("handle-start-game", () => setStartGame(true))
+        }
         return () => {
             if(joined){socket.disconnect()}
         }
-    }, [ENDPOINT, name, room])
-
-    // useEffect(() => {
-    //     console.log("socket:", socket)
-    //     if(joined){
-    //         socket.on("players-list", ({playersList}) => {
-    //         setPlayers(playersList)
-    //        console.log("playersList:", playersList)
-    //         })
-    //     }
-    // }, [joined])
+    }, [ENDPOINT, name, room, joined])
 
     const handleJoinRoom = () => {
         socket = io(ENDPOINT, {
             transports: ["websocket"]
         })
         setJoined(true)
-        console.log("room:", room)
-        socket.emit("join-room", { name, room }, (playersList) => {
-            // setPlayers(playersList)
+        socket.emit("join-room", { name, room }, () => {
         })
+    }
+
+    const handleStartGame = () => {
+        socket.emit("start-game", {room: room}, () => {})
     }
 
     return(
         <div>
-            <p>Set Up Page</p>
+            { !startGame  && <div><p>Set Up Page</p>
 
             <input type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
             
@@ -53,7 +47,13 @@ const SetUpPage = ({ setCurrentGame, setName, setRoom, name, room }) => {
             <button className="menu-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
             <button className="menu-button" onClick={() => setCurrentGame("Nomination Whist")}>Play Computer</button>
-            {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers}/>}
+            {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
+
+            <button onClick={() => handleStartGame()}>Start Game</button>
+            </div>}
+
+            {startGame && <NominationWhist  setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} />}
+
         </div>
     )
 }

@@ -10,6 +10,7 @@ function App() {
 	const [currentGame, setCurrentGame] = useState("");
 	const [ name, setName ] = useState("")
 	const [ room, setRoom ] = useState("")
+	const [ players, setPlayers ] = useState([])
 
 	return (
 		<div className="App">
@@ -25,8 +26,8 @@ function App() {
 
 			{currentGame === "Snap" && < GameSnap setCurrentGame={setCurrentGame}/>}
 
-			{currentGame === "Whist Options" && <SetUpPage  setCurrentGame={setCurrentGame} setName={setName} setRoom={setRoom} name={name} room={room}/>}
-			{currentGame === "Nomination Whist" && <NominationWhist  setCurrentGame={setCurrentGame}/>}
+			{currentGame === "Whist Options" && <SetUpPage  setCurrentGame={setCurrentGame} setName={setName} setRoom={setRoom} name={name} room={room} players={players} setPlayers={setPlayers} currentGame={currentGame}/>}
+			
 
 		</div>
 	);
