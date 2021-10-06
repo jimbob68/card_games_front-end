@@ -4,10 +4,10 @@ import './NominationWhist.css'
 
 // let socket
 
-const NominationWhist = ({ players, setPlayers, socket }) => {
+const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const [ deckOfCards, setDeckOfCards ] = useState([])
-    const [ numberOfPlayers, setNumberOfPlayers ] = useState(2)
+    const [ numberOfPlayers, setNumberOfPlayers ] = useState(players.length)
     const [ playerOneHand, setPlayerOneHand ] = useState([])
     const [ playerTwoHand, setPlayerTwoHand ] = useState([])
     const [ playerThreeHand, setPlayerThreeHand ] = useState([])
@@ -40,6 +40,15 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
         })
+        socket.on("set-next-player", ({nextPlayer}) => {
+            // if(activePlayer !== nextPlayer) {
+                setActivePlayer(nextPlayer)
+            // }
+            console.log("next player = " + nextPlayer + "--- activePlayer = " + activePlayer)
+        })
+        socket.on("set-card-pot", ({pot}) => {
+            setCardPot(pot)
+        })
 		
 	}, []);
 
@@ -49,9 +58,15 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
 
     useEffect(() => {
         if(cardPot.length === numberOfPlayers){
-        handleEndHand()
+            handleEndHand()
         }
     }, [cardPot])
+
+    // useEffect(() => {
+    //     // if (socket.id === players[activePlayer - 1].id) {
+    //         socket.emit("get-next-player", {activePlayer, room})
+    //     // }
+    // }, [activePlayer])
 
     useEffect(() => {
         handleEndRound()
@@ -73,7 +88,7 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
         }
 
     const handleDealCards = (currentRoundVariable) => {
-
+        if(currentRound === 0) setCurrentRound(1)
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
             socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
@@ -118,39 +133,54 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
         let cardPotVariable = cardPot
         if(cardPotVariable.length === numberOfPlayers) cardPotVariable = []
         if(!hasPlayedCard && (card.suit === selectedSuit || !hasSelectedSuit)){
-            if(activePlayer === 1){
-                card.player = 1
+
+            if(socket.id === players[activePlayer - 1].id){
+                card.player = activePlayer
                 playerOneHand.splice(cardIndex, 1)
                 setPlayerOneHand([...playerOneHand])
-            }
-            else if (activePlayer === 2){
-                card.player = 2
-                playerTwoHand.splice(cardIndex, 1)
-                setPlayerTwoHand([...playerTwoHand])
-            }
-            else if (activePlayer === 3){
-                card.player = 3
-                playerThreeHand.splice(cardIndex, 1)
-                setPlayerThreeHand([...playerThreeHand])
-            }
-            else if (activePlayer === 4){
-                card.player = 4
-                playerFourHand.splice(cardIndex, 1)
-                setPlayerFourHand([...playerFourHand])
-            }
-            else if (activePlayer === 5){
-                card.player = 5
-                playerFiveHand.splice(cardIndex, 1)
-                setPlayerFiveHand([...playerFiveHand])
-            }
+                if(activePlayer < numberOfPlayers){
+                    // setActivePlayer(activePlayer + 1)
+                    socket.emit("get-next-player", {activePlayer: (activePlayer + 1), room})
 
-            if(activePlayer < numberOfPlayers){
-                setActivePlayer(activePlayer + 1)
+                    console.log("IN CARD")
+                } else {
+                    // setActivePlayer(1)
+                    socket.emit("get-next-player", {activePlayer: 1, room})
+
+                    console.log("IN CARD 2")
+                }
+                // setCardPot([...cardPotVariable, card])
+                socket.emit("update-card-pot", {pot: [...cardPotVariable, card], room})
             } else {
-                setActivePlayer(1)
-
+                alert("Wait your turn!!!")
             }
-            setCardPot([...cardPotVariable, card])
+            // if(activePlayer === 1){
+            //     card.player = 1
+            //     playerOneHand.splice(cardIndex, 1)
+            //     setPlayerOneHand([...playerOneHand])
+            // }
+            // else if (activePlayer === 2){
+            //     card.player = 2
+            //     playerTwoHand.splice(cardIndex, 1)
+            //     setPlayerTwoHand([...playerTwoHand])
+            // }
+            // else if (activePlayer === 3){
+            //     card.player = 3
+            //     playerThreeHand.splice(cardIndex, 1)
+            //     setPlayerThreeHand([...playerThreeHand])
+            // }
+            // else if (activePlayer === 4){
+            //     card.player = 4
+            //     playerFourHand.splice(cardIndex, 1)
+            //     setPlayerFourHand([...playerFourHand])
+            // }
+            // else if (activePlayer === 5){
+            //     card.player = 5
+            //     playerFiveHand.splice(cardIndex, 1)
+            //     setPlayerFiveHand([...playerFiveHand])
+            // }
+
+            
         } else {
             alert("Please play " + selectedSuit )
         }
@@ -158,16 +188,16 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
 
     
     const handleEndRound = () => {
-        if(playerOneHand.length === 0 && (playerTwoHand.length === 0) && (playerThreeHand.length === 0) && (playerFourHand.length === 0) && (playerFiveHand.length === 0) && currentRound > 0){
-            fetchCards()
-            const currentRoundVariable = currentRound 
-            setCurrentHandNumber(1)
-            setTimeout(() => {
-                setCurrentRound(currentRoundVariable + 1)
-                handleDealCards(currentRoundVariable + 1)
-                setCardPot([])
-            }, 1000)
-        }
+    //     if(playerOneHand.length === 0 && (playerTwoHand.length === 0) && (playerThreeHand.length === 0) && (playerFourHand.length === 0) && (playerFiveHand.length === 0) && currentRound > 0){
+    //         fetchCards()
+    //         const currentRoundVariable = currentRound 
+    //         setCurrentHandNumber(1)
+    //         setTimeout(() => {
+    //             setCurrentRound(currentRoundVariable + 1)
+    //             handleDealCards(currentRoundVariable + 1)
+    //             setCardPot([])
+    //         }, 1000)
+    //     }
     }
 
 
@@ -194,45 +224,70 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
         if(highestTrumpCard.value > 0){
             if(highestTrumpCard.player === 1) {
                 setPlayerOneScore(playerOneScore + 1)
-                setActivePlayer(1)
+                // setActivePlayer(1)
+                socket.emit("get-next-player", {activePlayer: 1, room})
+
+                console.log("1")
             }
             if(highestTrumpCard.player === 2) {
                 setPlayerTwoScore(playerTwoScore + 1) 
-                setActivePlayer(2)
+                // setActivePlayer(2)
+                socket.emit("get-next-player", {activePlayer: 2, room})
+
+                console.log("2")
             }
             if(highestTrumpCard.player === 3) {
                 setPlayerThreeScore(playerThreeScore + 1) 
-                setActivePlayer(3)
+                // setActivePlayer(3)
+                socket.emit("get-next-player", {activePlayer: 3, room})
+
+                console.log("3")
             }
             if(highestTrumpCard.player === 4) {
                 setPlayerFourScore(playerFourScore + 1) 
-                setActivePlayer(4)
+                // setActivePlayer(4)
+                socket.emit("get-next-player", {activePlayer: 4, room})
+
+                console.log("4")
             }
             if(highestTrumpCard.player === 5) {
                 setPlayerFiveScore(playerFiveScore + 1) 
-                setActivePlayer(5)
+                // setActivePlayer(5)
+                socket.emit("get-next-player", {activePlayer: 5, room})
+
+                console.log("5")
             }
         } else {
 
             if(highestSuitCard.player === 1) {
                 setPlayerOneScore(playerOneScore + 1)
-                setActivePlayer(1)
+                socket.emit("get-next-player", {activePlayer: 1, room})
+                // setActivePlayer(1)
+                console.log("6")
             }
             if(highestSuitCard.player === 2) {
                 setPlayerTwoScore(playerTwoScore + 1)
-                setActivePlayer(2)
+                socket.emit("get-next-player", {activePlayer: 2, room})
+                // setActivePlayer(2)
+                console.log("7")
             }
             if(highestSuitCard.player === 3) {
                 setPlayerThreeScore(playerThreeScore + 1)
-                setActivePlayer(3)
+                socket.emit("get-next-player", {activePlayer: 3, room})
+                // setActivePlayer(3)
+                console.log("8")
             }
             if(highestSuitCard.player === 4) {
                 setPlayerFourScore(playerFourScore + 1)
-                setActivePlayer(4)
+                socket.emit("get-next-player", {activePlayer: 4, room})
+                // setActivePlayer(4)
+                console.log("9")
             }
             if(highestSuitCard.player === 5) {
                 setPlayerFiveScore(playerFiveScore + 1)
-                setActivePlayer(5)
+                socket.emit("get-next-player", {activePlayer: 5, room})
+                // setActivePlayer(5)
+                console.log("10")
             }
         }
         setCurrentHandNumber(currentHandNumber + 1)
@@ -248,6 +303,10 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
             return <div className="whist-player-hand">{cardImages}</div>;
     }
 
+    const getPlayerName = () => {
+        const player = players.find(player => player.id === socket.id) 
+        return player.name   
+    }
 
     return(
         <div>
@@ -263,12 +322,13 @@ const NominationWhist = ({ players, setPlayers, socket }) => {
 			</select>
 
             <button onClick={() => handleDealCards(1)}>Start Game</button>
-            <p>Active Player: {activePlayer}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>
-            <p>Player One: {playerOneScore}</p>
-            <p>Player Two: {playerTwoScore}</p>
-            <p>Player Three: {playerThreeScore}</p>
-            <p>Player Four: {playerFourScore}</p>
-            <p>Player Five: {playerFiveScore}</p>
+            <h3>{getPlayerName()}</h3>
+            <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>
+            {players[0] && <p>{players[0].name}: {playerOneScore}</p>}
+            {players[1] && <p>{players[1].name}: {playerTwoScore}</p>}
+            {players[2] && <p>{players[2].name}: {playerThreeScore}</p>}
+            {players[3] && <p>{players[3].name}: {playerFourScore}</p>}
+            {players[4] && <p>{players[4].name}: {playerFiveScore}</p>}
             {displayPotCards(cardPot)}
             {displayCards(playerOneHand)}
             {displayCards(playerTwoHand)}
