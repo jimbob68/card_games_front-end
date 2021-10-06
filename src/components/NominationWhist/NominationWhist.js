@@ -52,9 +52,10 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         socket.on("set-card-pot", ({pot}) => {
             setCardPot(pot)
         })
-        socket.on("set-prediction", ({nextPlayer, newPrediction}) => {
+        socket.on("set-prediction", ({nextPredictionPlayer, newPrediction}) => {
             setTrickPrediction(newPrediction)
-            setPredictionPlayer(nextPlayer)
+            setPredictionPlayer(nextPredictionPlayer)
+// can do a check in here if prediction object length === players length then all players have predicted
         })
 		
 	}, []);
@@ -154,7 +155,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         let cardPotVariable = cardPot
         if(cardPotVariable.length === numberOfPlayers) cardPotVariable = []
         if(!hasPlayedCard && (card.suit === selectedSuit || !hasSelectedSuit)){
-
             if(socket.id === players[activePlayer - 1].id){
                 card.player = activePlayer
                 playerOneHand.splice(cardIndex, 1)
@@ -342,7 +342,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         const name = getPlayerName()
         trickPrediction[name] = currentPrediction
         setTrickPrediction({...trickPrediction})
-        socket.emit("update-predictions", {trickPrediction, predictionPlayer, room})
+        let nextPredictionPlayer = predictionPlayer + 1
+        if (predictionPlayer === players.length) nextPredictionPlayer = 1 
+        socket.emit("update-predictions", {trickPrediction, nextPredictionPlayer, room})
     }
 
     return(
