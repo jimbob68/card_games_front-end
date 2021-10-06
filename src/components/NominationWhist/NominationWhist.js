@@ -16,13 +16,17 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ imageSize, setImageSize ] = useState("whist-medium")
     const [ activePlayer, setActivePlayer ] = useState(1)
     const [ cardPot, setCardPot ] = useState([])
-    const [ currentRound, setCurrentRound ] = useState(0)
+    const [ currentRound, setCurrentRound ] = useState(1)
     const [ playerOneScore, setPlayerOneScore ] = useState(0)
     const [ playerTwoScore, setPlayerTwoScore ] = useState(0)
     const [ playerThreeScore, setPlayerThreeScore ] = useState(0)
     const [ playerFourScore, setPlayerFourScore ] = useState(0)
     const [ playerFiveScore, setPlayerFiveScore ] = useState(0)
     const [ currentHandNumber, setCurrentHandNumber ] = useState(1)
+    const [ trickPrediction, setTrickPrediction ] = useState({})
+    const [ predictionPlayer, setPredictionPlayer ] = useState(1)
+    const [ currentPrediction, setCurrentPrediction ] = useState(0)
+
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "" ]
 
@@ -35,7 +39,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     // })
 
     useEffect(() => {
-		
         // if(players[0].id === socket.id)fetchCards(1)
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
@@ -49,6 +52,10 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         socket.on("set-card-pot", ({pot}) => {
             setCardPot(pot)
         })
+        socket.on("set-prediction", ({nextPlayer, newPrediction}) => {
+            setTrickPrediction(newPrediction)
+            setPredictionPlayer(nextPlayer)
+        })
 		
 	}, []);
 
@@ -57,7 +64,13 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     }, [currentRound])
 
     useEffect(() => {
-        handleDealCards(currentRound)
+        if(currentRound === 0 ) {
+            handleDealCards(1)
+            // setCurrentRound(1)
+        } else {
+            handleDealCards(currentRound)
+        }
+
     }, [deckOfCards])
 
     useEffect(() => {
@@ -97,7 +110,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }
 
     const handleDealCards = (currentRoundVariable) => {
-        if(currentRound === 0) setCurrentRound(1)
+        // if(currentRound === 0) setCurrentRound(1)
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
             socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
@@ -119,7 +132,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         // if(numberOfPlayers >= 5){
         // setPlayerFiveHand(deck.slice((40), (50 - currentRoundVariable + 1)))
         // }
-
     }
 
     const handleSelectCard = (card, cardIndex, hand) => {
@@ -195,7 +207,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }
     }
 
-    
     const handleEndRound = () => {
     //     if(playerOneHand.length === 0 && (playerTwoHand.length === 0) && (playerThreeHand.length === 0) && (playerFourHand.length === 0) && (playerFiveHand.length === 0) && currentRound > 0){
         const currentRoundVariable = currentRound 
@@ -211,7 +222,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }, 1000)
     //     }
     }
-
 
     const handleEndHand = () => {
         const trumpSuit = trumpSuits[currentRound - 1]
@@ -320,6 +330,21 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         return player.name   
     }
 
+    const displayPredictionDropdown = () => {
+        const optionsArray = [<option value={0}>0</option>]
+        playerOneHand.forEach((option, index) => {
+            optionsArray.push(<option value={index + 1}>{index + 1}</option>)
+        })
+        return <select value={currentPrediction} onChange={(event) => setCurrentPrediction(event.target.value)}>{optionsArray}</select>
+    }
+
+    const handleConfirmPrediction = () => {
+        const name = getPlayerName()
+        trickPrediction[name] = currentPrediction
+        setTrickPrediction({...trickPrediction})
+        socket.emit("update-predictions", {trickPrediction, predictionPlayer, room})
+    }
+
     return(
         <div>
             <p>Nomination Whist</p>
@@ -342,15 +367,15 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             {players[3] && <p>{players[3].name}: {playerFourScore}</p>}
             {players[4] && <p>{players[4].name}: {playerFiveScore}</p>}
             {displayPotCards(cardPot)}
+            {socket.id === players[predictionPlayer - 1].id && <div>
+            {displayPredictionDropdown()}
+            <button onClick={ () => handleConfirmPrediction()} >Confirm Prediction</button>
+            </div>} 
             {displayCards(playerOneHand)}
             {displayCards(playerTwoHand)}
             {displayCards(playerThreeHand)}
             {displayCards(playerFourHand)}
             {displayCards(playerFiveHand)}
-
-
-
-
         </div>
     )
 }
