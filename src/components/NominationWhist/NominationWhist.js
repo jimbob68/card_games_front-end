@@ -36,7 +36,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     useEffect(() => {
 		
-        if(players[0].id === socket.id)fetchCards()
+        // if(players[0].id === socket.id)fetchCards(1)
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
         })
@@ -53,26 +53,33 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 	}, []);
 
     useEffect(() => {
-        handleDealCards(1)
+       if(players[0].id === socket.id)fetchCards(1)
+    }, [currentRound])
+
+    useEffect(() => {
+        handleDealCards(currentRound)
     }, [deckOfCards])
 
     useEffect(() => {
         if(cardPot.length === numberOfPlayers){
             handleEndHand()
         }
+        if(currentHandNumber === 10 - currentRound + 1 && cardPot.length === players.length){
+            handleEndRound()
+        }
     }, [cardPot])
-
+    
     // useEffect(() => {
     //     // if (socket.id === players[activePlayer - 1].id) {
     //         socket.emit("get-next-player", {activePlayer, room})
     //     // }
     // }, [activePlayer])
 
-    useEffect(() => {
-        handleEndRound()
-    }, [playerOneHand, playerTwoHand, playerThreeHand, playerFourHand, playerFiveHand])
+    // useEffect(() => {
+    //     handleEndRound()
+    // }, [playerOneHand, playerTwoHand, playerThreeHand, playerFourHand, playerFiveHand])
 
-    const fetchCards = () => {
+    const fetchCards = (currentRoundVariable) => {
     fetch('https://deckofcardsapi.com/api/deck/new/shuffle?deck_count=1')
             .then((res) => res.json())
             .then((results) => {
@@ -82,8 +89,10 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             .then((deck_id) => {
                 fetch('https://deckofcardsapi.com/api/deck/' + deck_id + '/draw/?count=52')
                     .then((res) => res.json())
-                    .then((results) => setDeckOfCards(results.cards));
+                    .then((results) => setDeckOfCards(results.cards))
+                    .then(() => handleDealCards(currentRoundVariable))
             })
+            
             .catch(err => console.log(err))
         }
 
@@ -189,14 +198,17 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     
     const handleEndRound = () => {
     //     if(playerOneHand.length === 0 && (playerTwoHand.length === 0) && (playerThreeHand.length === 0) && (playerFourHand.length === 0) && (playerFiveHand.length === 0) && currentRound > 0){
-    //         fetchCards()
-    //         const currentRoundVariable = currentRound 
-    //         setCurrentHandNumber(1)
-    //         setTimeout(() => {
-    //             setCurrentRound(currentRoundVariable + 1)
-    //             handleDealCards(currentRoundVariable + 1)
-    //             setCardPot([])
-    //         }, 1000)
+        const currentRoundVariable = currentRound 
+        // if(players[0].id === socket.id){
+        //     fetchCards(currentRoundVariable + 1)
+        // }
+            
+        setCurrentHandNumber(1)
+        setTimeout(() => {
+            setCurrentRound(currentRoundVariable + 1)
+            // handleDealCards(currentRoundVariable + 1)
+            setCardPot([])
+        }, 1000)
     //     }
     }
 
