@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './NominationWhist.css'
+import backOfCard from '../../assets/back_of_card.png'
+import WhistResultsModal from "./WhistResultsModal.js"
 // import io from "socket.io-client"
 
 // let socket
@@ -16,7 +18,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ imageSize, setImageSize ] = useState("whist-medium")
     const [ activePlayer, setActivePlayer ] = useState(1)
     const [ cardPot, setCardPot ] = useState([])
-    const [ currentRound, setCurrentRound ] = useState(1)
+    const [ currentRound, setCurrentRound ] = useState(10)
     // const [ playerOneScore, setPlayerOneScore ] = useState(0)
     // const [ playerTwoScore, setPlayerTwoScore ] = useState(0)
     // const [ playerThreeScore, setPlayerThreeScore ] = useState(0)
@@ -29,8 +31,13 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ startingPlayer, setStartingPlayer ] = useState(0)
     const [ roundScores, setRoundScores ] = useState({})
     const [ totalScores, setTotalScores ] = useState({})
+    const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
 
-    const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "" ]
+    const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
+
+    // window.onbeforeunload = (event) => {
+    //     event.returnValue = ""
+    // }
 
     // const ENDPOINT = "localhost:5000"
 
@@ -89,10 +96,16 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         if(cardPot.length === numberOfPlayers){
             handleEndHand()
         }
-        if(currentHandNumber === 10 - currentRound + 1 && cardPot.length === players.length){
+        // if(currentHandNumber === 10 - currentRound + 1 && cardPot.length === players.length){
+        //     handleEndRound()
+        // }
+    }, [cardPot])
+
+    useEffect(() => {
+        if(currentHandNumber === 11 - currentRound + 1 && cardPot.length === players.length){
             handleEndRound()
         }
-    }, [cardPot])
+    }, [currentHandNumber])
     
     // useEffect(() => {
     //     // if (socket.id === players[activePlayer - 1].id) {
@@ -247,6 +260,20 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 newTotalScores[player.name] += 10
             }
         }) 
+        console.log("New total scores:", newTotalScores)
+        if(currentRound === 10){
+            // let winner
+            // let highestScore = 0 
+            // Object.entries(newTotalScores).forEach(player => {
+            //     if(player[1] > highestScore){
+            //         winner = player[0]
+            //     }
+            // })
+            setTimeout(() => {
+                // alert("The Winner is " + winner + "!")
+                setWhistModalIsOpen(true)
+            }, 1500)
+        }
         const currentStartingPlayer = startingPlayer
         if(startingPlayer === players.length){
             setPredictionPlayer(1)
@@ -381,7 +408,13 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     }
 
     const displayCards = (hand, playerNumber) => {
-            const cardImages = hand.map((card, index) => <img onClick={() => handleSelectCard(card, index, hand)} className={imageSize} src={card.image} alt={card.code} />);
+        let cardImages = []
+        if(currentRound === 10 && hand.length === 1){
+            cardImages.push(<img className={imageSize} src={backOfCard} onClick={() => handleSelectCard(hand[0], 0, hand)} alt="back of card"/>)
+        } else {
+            cardImages = hand.map((card, index) => <img onClick={() => handleSelectCard(card, index, hand)} className={imageSize} src={card.image} alt={card.code} />);
+        }
+             
             return <div className="whist-player-hand">{cardImages}</div>;
     }
 
@@ -401,14 +434,18 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             total += parseInt(value)
         }
         const optionsArray = [<option value="" disabled selected>Number of tricks</option>, <option value={0}>0</option>]
-        playerOneHand.forEach((option, index) => {
-            if(total + index + 1 === playerOneHand.length){
-                optionsArray.push(<option disabled value={index + 1}>{index + 1}</option>)
-            } else {
-                optionsArray.push(<option value={index + 1}>{index + 1}</option>)
-            }
-            
-        })
+        if(currentRound === 10){
+            optionsArray.push(<option value={1}>1</option>)
+        }else {
+            playerOneHand.forEach((option, index) => {
+                if(total + index + 1 === playerOneHand.length){
+                    optionsArray.push(<option disabled value={index + 1}>{index + 1}</option>)
+                } else {
+                    optionsArray.push(<option value={index + 1}>{index + 1}</option>)
+                }
+                
+            })
+        }
         return <select value={currentPrediction} onChange={(event) => setCurrentPrediction(event.target.value)}>{optionsArray}</select>
     }
 
@@ -468,10 +505,11 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             <button disabled={currentPrediction === ""} onClick={ () => handleConfirmPrediction()} >Confirm Prediction</button>
             </div>} 
             {displayCards(playerOneHand)}
-            {displayCards(playerTwoHand)}
+            {/* {displayCards(playerTwoHand)}
             {displayCards(playerThreeHand)}
             {displayCards(playerFourHand)}
-            {displayCards(playerFiveHand)}
+            {displayCards(playerFiveHand)} */}
+            <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores}/>
         </div>
     )
 }
