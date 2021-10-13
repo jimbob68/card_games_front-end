@@ -437,19 +437,16 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         for (const [key, value] of Object.entries(trickPrediction)){
             total += parseInt(value)
         }
-        const optionsArray = [<option value="" disabled selected>Number of tricks</option>, <option value={0}>0</option>]
-        if(currentRound === 10){
-            optionsArray.push(<option value={1}>1</option>)
-        }else {
-            playerOneHand.forEach((option, index) => {
-                if(total + index + 1 === playerOneHand.length){
-                    optionsArray.push(<option disabled value={index + 1}>{index + 1}</option>)
+        const optionsArray = [<option value="" disabled selected>Number of tricks</option>]
+        
+            for(let index = 0; index < playerOneHand.length + 1; index++) {
+                if(total + index === playerOneHand.length && players.length === Object.entries(trickPrediction).length + 1){
+                    optionsArray.push(<option disabled value={index}>{index}</option>)
                 } else {
-                    optionsArray.push(<option value={index + 1}>{index + 1}</option>)
+                    optionsArray.push(<option value={index}>{index}</option>)
                 }
                 
-            })
-        }
+            }
         return <select value={currentPrediction} onChange={(event) => setCurrentPrediction(event.target.value)}>{optionsArray}</select>
     }
 
@@ -497,7 +494,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
             <button onClick={() => handleDealCards(1)}>Start Game</button>
             <h3>{getPlayerName()}</h3>
-            <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>
+            {players[activePlayer - 1] && <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>}
             {players[0] && <p>{players[0].name}: RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]} P: {displayPrediction(0)} gs:{gameScores[players[0].name]} </p>}
             {players[1] && <p>{players[1].name}: RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]} P: {displayPrediction(1)} gs:{gameScores[players[1].name]}</p>}
             {players[2] && <p>{players[2].name}: RS: {roundScores[players[2].name]} TS: {totalScores[players[2].name]} P: {displayPrediction(2)} gs:{gameScores[players[2].name]}</p>}
