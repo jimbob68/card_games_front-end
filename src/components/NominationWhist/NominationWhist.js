@@ -18,7 +18,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ imageSize, setImageSize ] = useState("whist-medium")
     const [ activePlayer, setActivePlayer ] = useState(1)
     const [ cardPot, setCardPot ] = useState([])
-    const [ currentRound, setCurrentRound ] = useState(10)
+    const [ currentRound, setCurrentRound ] = useState(1)
     // const [ playerOneScore, setPlayerOneScore ] = useState(0)
     // const [ playerTwoScore, setPlayerTwoScore ] = useState(0)
     // const [ playerThreeScore, setPlayerThreeScore ] = useState(0)
@@ -32,6 +32,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ roundScores, setRoundScores ] = useState({})
     const [ totalScores, setTotalScores ] = useState({})
     const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
+    const [ gameScores, setGameScores ] = useState({})
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
 
@@ -166,6 +167,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         })
         setTotalScores({...startingRoundScores})
         setRoundScores({...startingRoundScores})
+        if(Object.entries(gameScores).length === 0){
+            setGameScores({...startingRoundScores})
+        }
     }
 
     const handleSelectCard = (card, cardIndex, hand) => {
@@ -494,11 +498,11 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             <button onClick={() => handleDealCards(1)}>Start Game</button>
             <h3>{getPlayerName()}</h3>
             <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>
-            {players[0] && <p>{players[0].name}: RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]} P: {displayPrediction(0)}</p>}
-            {players[1] && <p>{players[1].name}: RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]} P: {displayPrediction(1)}</p>}
-            {players[2] && <p>{players[2].name}: RS: {roundScores[players[2].name]} TS: {totalScores[players[2].name]} P: {displayPrediction(2)}</p>}
-            {players[3] && <p>{players[3].name}: RS: {roundScores[players[3].name]} TS: {totalScores[players[3].name]} P: {displayPrediction(3)}</p>}
-            {players[4] && <p>{players[4].name}: RS: {roundScores[players[4].name]} TS: {totalScores[players[4].name]} P: {displayPrediction(4)}</p>}
+            {players[0] && <p>{players[0].name}: RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]} P: {displayPrediction(0)} gs:{gameScores[players[0].name]} </p>}
+            {players[1] && <p>{players[1].name}: RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]} P: {displayPrediction(1)} gs:{gameScores[players[1].name]}</p>}
+            {players[2] && <p>{players[2].name}: RS: {roundScores[players[2].name]} TS: {totalScores[players[2].name]} P: {displayPrediction(2)} gs:{gameScores[players[2].name]}</p>}
+            {players[3] && <p>{players[3].name}: RS: {roundScores[players[3].name]} TS: {totalScores[players[3].name]} P: {displayPrediction(3)} gs:{gameScores[players[3].name]}</p>}
+            {players[4] && <p>{players[4].name}: RS: {roundScores[players[4].name]} TS: {totalScores[players[4].name]} P: {displayPrediction(4)} gs:{gameScores[players[4].name]}</p>}
             {displayPotCards(cardPot)}
             {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
             {displayPredictionDropdown()}
@@ -509,7 +513,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             {displayCards(playerThreeHand)}
             {displayCards(playerFourHand)}
             {displayCards(playerFiveHand)} */}
-            <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores}/>
+            <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores} setCurrentRound={setCurrentRound} createPlayerScores={createPlayerScores} gameScores={gameScores} setGameScores={setGameScores}/>
         </div>
     )
 }
