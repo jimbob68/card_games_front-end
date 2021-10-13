@@ -12,7 +12,15 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     
     const [ joined, setJoined ] = useState(false)
     const [ startGame, setStartGame ] = useState(false)
+    const [ numberOfComputerPlayers, setNumberOfComputerPlayers ] = useState(0)
     const ENDPOINT = "localhost:5000"
+
+    const computerPlayers = [
+        {name: "bobby", room, isComputer: true, computerId: 1},
+        {name: "nobby", room, isComputer: true, computerId: 2},
+        {name: "toby", room, isComputer: true, computerId: 3},
+        {name: "robby", room, isComputer: true, computerId: 4}
+]    
 
     useEffect(() => {
         if(joined){
@@ -28,13 +36,24 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
             transports: ["websocket"]
         })
         setJoined(true)
-        socket.emit("join-room", { name, room }, () => {
+        socket.emit("join-room", { name, room, isComputer: false }, () => {
         })
     }
 
     const handleStartGame = () => {
         socket.emit("start-game", {room: room}, () => {})
     }
+
+    const handleAddComputerPlayer = () => {
+        if(players.length < 5){
+            socket.emit("join-room", computerPlayers[numberOfComputerPlayers], () => {
+
+            })
+            setNumberOfComputerPlayers(numberOfComputerPlayers + 1)
+        }
+    }
+
+    
 
     return(
         <div>
@@ -46,7 +65,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 
             <button className="menu-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
-            <button className="menu-button" onClick={() => setCurrentGame("Nomination Whist")}>Play Computer</button>
+            <button className="menu-button" onClick={() => handleAddComputerPlayer()}>Play Computer</button>
             {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
 
             <button onClick={() => handleStartGame()}>Start Game</button>

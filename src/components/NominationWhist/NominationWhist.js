@@ -137,6 +137,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const handleDealCards = (currentRoundVariable) => {
         // if(currentRound === 0) setCurrentRound(1)
+        console.log("players:", players)
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
             socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
