@@ -33,6 +33,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ totalScores, setTotalScores ] = useState({})
     const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
     const [ gameScores, setGameScores ] = useState({})
+    const [ computerHands, setComputerHands ] = useState([])
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
 
@@ -56,6 +57,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         socket.on("set-next-player", ({nextPlayer, firstPlayer}) => {
             // if(activePlayer !== nextPlayer) {
                 setActivePlayer(nextPlayer)
+                if(players[nextPlayer - 1].isComputer === true) {
+                    computerTurn()
+                }
                 if(firstPlayer){
                     setStartingPlayer(firstPlayer)
                 }
@@ -71,6 +75,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 setPredictionPlayer(0)
             }else {
                 setPredictionPlayer(nextPredictionPlayer)
+            }
+            if(players[nextPredictionPlayer - 1].isComputer === true) {
+                computerTurn()
             }
         })
        if(players[0].id === socket.id) {
@@ -129,19 +136,24 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 fetch('https://deckofcardsapi.com/api/deck/' + deck_id + '/draw/?count=52')
                     .then((res) => res.json())
                     .then((results) => setDeckOfCards(results.cards))
-                    .then(() => handleDealCards(currentRoundVariable))
+                    // .then(() => handleDealCards(currentRoundVariable))
             })
-            
             .catch(err => console.log(err))
         }
 
     const handleDealCards = (currentRoundVariable) => {
         // if(currentRound === 0) setCurrentRound(1)
         console.log("players:", players)
+        let localComputerHands = [...computerHands]
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
-            socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
+            if(player.isComputer === true && playerCards.length !== 0) {
+                localComputerHands.push(playerCards)
+            } else {
+                socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
+            }
         })
+        setComputerHands(localComputerHands)
         // if(currentRound === 0) setCurrentRound(1)
         // let deck = deckOfCards;
         // console.log("currentRound:", currentRound)
@@ -478,6 +490,19 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }else{
             return "Waiting..."
         }
+    }
+
+    const computerTurn = () => {
+        console.log("computer turn");
+    }
+
+    const computerPrediction = (hand) => {
+        let goodCards = 0
+        hand.forEach(card => {
+            if(card.suit === trumpSuits[currentRound - 1]) goodCards += 1
+            else if(parseInt(card.value) > 9 || card.value === "JACK" || card.value === "QUEEN" || card.value === "KING" || card.value === "ACE") goodCards += 1
+        })
+        return goodCards
     }
 
     return(
