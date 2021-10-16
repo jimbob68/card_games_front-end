@@ -15,6 +15,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     const [ numberOfComputerPlayers, setNumberOfComputerPlayers ] = useState(0)
     const ENDPOINT = "localhost:5000"
 
+
     const computerPlayers = [
         {name: "bobby", room, isComputer: true, computerId: 1},
         {name: "nobby", room, isComputer: true, computerId: 2},
@@ -71,7 +72,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
             <button onClick={() => handleStartGame()}>Start Game</button>
             </div>}
 
-            {startGame && <NominationWhist  setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room}  />}
+            {startGame && <NominationWhist setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room}  />}
 
         </div>
     )

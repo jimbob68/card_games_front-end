@@ -33,7 +33,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ totalScores, setTotalScores ] = useState({})
     const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
     const [ gameScores, setGameScores ] = useState({})
-    const [ computerHands, setComputerHands ] = useState([])
+    const [ computerHands, setComputerHands ] = useState({})
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
 
@@ -74,17 +74,21 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             if(Object.entries(newPrediction).length === players.length){
                 setPredictionPlayer(0)
             }else {
-                setPredictionPlayer(nextPredictionPlayer)
-            }
-            if(players[nextPredictionPlayer - 1].isComputer === true) {
-                computerTurn()
+                setPredictionPlayer(nextPredictionPlayer)         
+                if(players[nextPredictionPlayer - 1].isComputer === true && players[0].id === socket.id) {
+                    setTimeout(() => {
+                        const computerPredicts = computerPrediction(players[nextPredictionPlayer - 1], newPrediction, nextPredictionPlayer)
+                        console.log("hand", players[nextPredictionPlayer - 1].hand)
+                        console.log("prediciton", computerPredicts)
+                    }, 2000)
+                }
             }
         })
        if(players[0].id === socket.id) {
            randomStartPlayer()
        }
        createPlayerScores()	
-	}, []);
+    }, []);
 
     useEffect(() => {
        if(players[0].id === socket.id)fetchCards(1)
@@ -144,16 +148,20 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const handleDealCards = (currentRoundVariable) => {
         // if(currentRound === 0) setCurrentRound(1)
         console.log("players:", players)
-        let localComputerHands = [...computerHands]
+        let localComputerHands = {...computerHands}
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
             if(player.isComputer === true && playerCards.length !== 0) {
-                localComputerHands.push(playerCards)
+                localComputerHands[player.id] = playerCards
+                player.hand = playerCards
             } else {
                 socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
             }
         })
-        setComputerHands(localComputerHands)
+        setComputerHands({...localComputerHands})
+        setPlayers([...players])
+
+
         // if(currentRound === 0) setCurrentRound(1)
         // let deck = deckOfCards;
         // console.log("currentRound:", currentRound)
@@ -496,12 +504,29 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         console.log("computer turn");
     }
 
-    const computerPrediction = (hand) => {
+    const computerPrediction = (currentComputerPlayer, previousPrediction, currentPredictionPlayer) => {
+        const computerName = currentComputerPlayer.name
+        const hand = currentComputerPlayer.hand
         let goodCards = 0
         hand.forEach(card => {
             if(card.suit === trumpSuits[currentRound - 1]) goodCards += 1
             else if(parseInt(card.value) > 9 || card.value === "JACK" || card.value === "QUEEN" || card.value === "KING" || card.value === "ACE") goodCards += 1
         })
+
+        if(Object.entries(previousPrediction).length + 1 === players.length){
+            let totalPredictionAmount = 0
+            Object.entries(previousPrediction).forEach(prediction => {
+                totalPredictionAmount += parseInt(prediction[1])
+            })
+            if(totalPredictionAmount + goodCards === hand.length) goodCards -= 1
+        }
+        previousPrediction[computerName] = goodCards
+        setTrickPrediction({...previousPrediction})
+        let nextPredictionPlayer = currentPredictionPlayer + 1
+        if (currentPredictionPlayer === players.length) nextPredictionPlayer = 1 
+
+        socket.emit("update-predictions", {trickPrediction: previousPrediction, nextPredictionPlayer, room})
+
         return goodCards
     }
 
