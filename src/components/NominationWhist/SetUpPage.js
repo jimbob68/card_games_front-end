@@ -53,8 +53,6 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
         }
     }
 
-    
-
     return(
         <div>
             { !startGame  && <div><p>Set Up Page</p>

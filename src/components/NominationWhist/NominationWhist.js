@@ -71,6 +71,11 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 setPredictionPlayer(0)
             }else {
                 setPredictionPlayer(nextPredictionPlayer)
+                if(players[nextPredictionPlayer - 1].isComputer === true && players[0].id === socket.id){
+                    setTimeout(() => {                  
+                    computerPrediction(players[nextPredictionPlayer - 1], newPrediction, nextPredictionPlayer)
+                }, 2000)
+                }
             }
         })
        if(players[0].id === socket.id) {
@@ -140,7 +145,12 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         console.log("players:", players)
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
-            socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
+            if(player.isComputer === true && playerCards.length !== 0){
+                player.hand = playerCards
+            } else {
+                socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
+            }
+            setPlayers([...players])
         })
         // if(currentRound === 0) setCurrentRound(1)
         // let deck = deckOfCards;
@@ -160,6 +170,34 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         // setPlayerFiveHand(deck.slice((40), (50 - currentRoundVariable + 1)))
         // }
     }
+
+    const computerPrediction = (currentComputerPlayer, previousPrediction, currentPredictionPlayer) => {
+        console.log("currentComputerPlayer:", currentComputerPlayer)
+        const computerName = currentComputerPlayer.name
+        const hand = currentComputerPlayer.hand
+        let goodCards = 0
+        hand.forEach(card => {
+            if(card.suit === trumpSuits[currentRound - 1]){
+                goodCards += 1
+            } else if(parseInt(card.value) > 9 || card.value === "JACK" || card.value === "QUEEN" || card.value === "KING" || card.value === "ACE"){
+                goodCards += 1
+            }
+        })
+        if(Object.entries(previousPrediction).length === players.length - 1){
+            let totalPredictionAmount = 0
+            Object.entries(previousPrediction).forEach(prediction => {
+                totalPredictionAmount += parseInt(prediction[1])
+            })
+            if(totalPredictionAmount + goodCards === hand.length){
+                goodCards -= 1
+            }
+        }
+        previousPrediction[computerName] = goodCards
+        setTrickPrediction({...previousPrediction})
+        let nextPredictionPlayer = currentPredictionPlayer + 1
+        if(currentPredictionPlayer === players.length) nextPredictionPlayer = 1
+        socket.emit("update-predictions", {trickPrediction: previousPrediction, nextPredictionPlayer, room})
+ }
 
     const createPlayerScores = () => {
         const startingRoundScores = {}
