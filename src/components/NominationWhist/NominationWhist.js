@@ -16,7 +16,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ playerFourHand, setPlayerFourHand ] = useState([])
     const [ playerFiveHand, setPlayerFiveHand ] = useState([])
     const [ imageSize, setImageSize ] = useState("whist-medium")
-    const [ activePlayer, setActivePlayer ] = useState(1)
+    const [ activePlayer, setActivePlayer ] = useState(null)
     const [ cardPot, setCardPot ] = useState([])
     const [ currentRound, setCurrentRound ] = useState(1)
     // const [ playerOneScore, setPlayerOneScore ] = useState(0)
@@ -34,6 +34,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
     const [ gameScores, setGameScores ] = useState({})
     const [ computerHands, setComputerHands ] = useState({})
+    const [ handWinner, setHandWinner ] = useState(null)
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
 
@@ -53,41 +54,55 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         // if(players[0].id === socket.id)fetchCards(1)
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
+            console.log("HAND!", hand)
+
         })
+
         socket.on("set-next-player", ({nextPlayer, firstPlayer}) => {
             // if(activePlayer !== nextPlayer) {
+                console.log("setting active player!!!!!!!!!!!!!!!", activePlayer)
                 setActivePlayer(nextPlayer)
-                if(players[nextPlayer - 1].isComputer === true) {
-                    computerTurn()
-                }
+                console.log("predictionPlayer!!!", predictionPlayer);
+                    // if(players[nextPlayer - 1].isComputer === true && predictionPlayer === 0 && players[0].id === socket.id) {
+                    if(activePlayer && players[nextPlayer - 1].isComputer === true && players[0].id === socket.id) {
+                        // computerPlayCard(players[nextPlayer - 1])
+                        setCardPot([...cardPot])
+                    }
                 if(firstPlayer){
                     setStartingPlayer(firstPlayer)
                 }
             // }
-            console.log("next player = " + nextPlayer + "--- activePlayer = " + activePlayer)
+            // console.log("next player = " + nextPlayer + "--- activePlayer = " + activePlayer)
         })
+
         socket.on("set-card-pot", ({pot}) => {
             setCardPot(pot)
         })
+
         socket.on("set-prediction", ({nextPredictionPlayer, newPrediction}) => {
             setTrickPrediction(newPrediction)
             if(Object.entries(newPrediction).length === players.length){
                 setPredictionPlayer(0)
+                setActivePlayer(nextPredictionPlayer) 
+                setCardPot([...cardPot])
             }else {
-                setPredictionPlayer(nextPredictionPlayer)         
+                setPredictionPlayer(nextPredictionPlayer)      
                 if(players[nextPredictionPlayer - 1].isComputer === true && players[0].id === socket.id) {
                     setTimeout(() => {
                         const computerPredicts = computerPrediction(players[nextPredictionPlayer - 1], newPrediction, nextPredictionPlayer)
-                        console.log("hand", players[nextPredictionPlayer - 1].hand)
-                        console.log("prediciton", computerPredicts)
+                        // console.log("hand", players[nextPredictionPlayer - 1].hand)
+                        // console.log("prediciton", computerPredicts)
                     }, 2000)
                 }
             }
         })
+
        if(players[0].id === socket.id) {
            randomStartPlayer()
        }
+
        createPlayerScores()	
+
     }, []);
 
     useEffect(() => {
@@ -118,6 +133,69 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             handleEndRound()
         }
     }, [currentHandNumber])
+
+
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         if(players[activePlayer - 1].isComputer === true && predictionPlayer === 0 && players[0].id === socket.id) {
+                // if (cardPot.length < players.length){
+                    // computerPlayCard(players[activePlayer - 1])
+                // }
+
+
+            //     console.log("IN USEEFFECT!", players[activePlayer -1])
+
+                // if(players[activePlayer - 1].hand.length === (10 - currentRound + 1) - (currentHandNumber - 1)){
+                    // computerPlayCard(players[activePlayer - 1])
+                // }
+        //     }
+        // }, 4000)
+    // }, [predictionPlayer, activePlayer, cardPot])
+
+            // OURS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // if(players.length > 0 && cardPot.length === players.length){
+        //     setCardPot([])
+        // } else {
+        //     if(players[activePlayer - 1].isComputer && predictionPlayer === 0 && players[0].id === socket.id){
+        //         computerPlayCard(players[activePlayer - 1])
+        //     }
+        // }
+    // }, [cardPot])
+
+    
+    // OURS 2222222222!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // useEffect(() =>{
+        //     if(players[activePlayer - 1].isComputer && predictionPlayer === 0 && players[0].id === socket.id){
+        //         setCardPot([...cardPot])
+        //     }
+        // }, [activePlayer])
+
+    useEffect(() => {
+        console.log("IN USEEFFECT!", activePlayer)
+        setTimeout(() => {
+            if(players[activePlayer - 1] && players[activePlayer - 1].isComputer === true && players[0].id === socket.id) {
+                computerPlayCard(players[activePlayer - 1])
+            }
+        }, 4000)
+    },[cardPot])
+
+
+    // useEffect(() => {
+    //             console.log("IN USEEFFECT!", activePlayer)
+
+    //     setTimeout(() => {
+    //         if(players[activePlayer - 1] && players[activePlayer - 1].isComputer === true && players[0].id === socket.id) {
+    //             computerPlayCard(players[activePlayer - 1])
+    //         }
+    //     }, 4000)
+    // },[activePlayer])
+
+
+    // useEffect(() => {
+    //     if(handWinner) {
+    //         computerPlayCard(players[handWinner - 1])
+    //     }
+    // }, [handWinner])
     
     // useEffect(() => {
     //     // if (socket.id === players[activePlayer - 1].id) {
@@ -133,7 +211,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     fetch('https://deckofcardsapi.com/api/deck/new/shuffle?deck_count=1')
             .then((res) => res.json())
             .then((results) => {
-                console.log('deck info', results);
+                // console.log('deck info', results);
                 return results.deck_id;
             })
             .then((deck_id) => {
@@ -147,7 +225,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const handleDealCards = (currentRoundVariable) => {
         // if(currentRound === 0) setCurrentRound(1)
-        console.log("players:", players)
+        // console.log("players:", players)
         let localComputerHands = {...computerHands}
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
@@ -212,61 +290,49 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         if(hand.length <= 10 - currentRound + 1 - currentHandNumber){
             hasPlayedCard = true
         }
-        console.log("selected Suit:", selectedSuit)
-        console.log("Has selected Suit:", hasSelectedSuit)
-        let cardPotVariable = cardPot
+        // console.log("selected Suit:", selectedSuit)
+        // console.log("Has selected Suit:", hasSelectedSuit)
+        let cardPotVariable = [...cardPot] // not sure!!!!!!!!!!!!!!!!!!!!!!!
         if(cardPotVariable.length === numberOfPlayers) cardPotVariable = []
-        if(!hasPlayedCard && (card.suit === selectedSuit || !hasSelectedSuit)){
-            if(socket.id === players[activePlayer - 1].id){
+        if(hasPlayedCard || socket.id === !players[activePlayer - 1].id ){
+            if(!players[activePlayer - 1].isComputer === true){
+                alert("Wait your turn!!!")
+                return
+            }
+        }
+        // if(!hasPlayedCard && (card.suit === selectedSuit || !hasSelectedSuit)){
+        if(socket.id === players[activePlayer - 1].id && (card.suit !== selectedSuit && hasSelectedSuit)){
+            alert("Please play " + selectedSuit )
+            return
+        }
+            if(socket.id === players[activePlayer - 1].id || players[activePlayer - 1].isComputer === true){
                 card.player = activePlayer
-                playerOneHand.splice(cardIndex, 1)
-                setPlayerOneHand([...playerOneHand])
-                if(activePlayer < numberOfPlayers){
-                    // setActivePlayer(activePlayer + 1)
-                    socket.emit("get-next-player", {activePlayer: (activePlayer + 1), room})
+                if(players[activePlayer - 1].isComputer === true){
+                    players[activePlayer - 1].hand.splice(cardIndex, 1)
+                    setPlayers([...players])
+                } else {
+                    playerOneHand.splice(cardIndex, 1)
+                    setPlayerOneHand([...playerOneHand])
+                }
+                // console.log("BEFORE BREAK", cardPot)
 
+                // if(cardPot.length === players.length){
+                //     socket.emit("update-card-pot", {pot: [...cardPotVariable, card], room})
+                //     console.log("IN BREAK")
+                //     return
+                // }
+
+
+                if(activePlayer < numberOfPlayers){
+                    socket.emit("get-next-player", {activePlayer: (activePlayer + 1), room})
                     console.log("IN CARD")
                 } else {
-                    // setActivePlayer(1)
                     socket.emit("get-next-player", {activePlayer: 1, room})
-
                     console.log("IN CARD 2")
                 }
                 // setCardPot([...cardPotVariable, card])
                 socket.emit("update-card-pot", {pot: [...cardPotVariable, card], room})
-            } else {
-                alert("Wait your turn!!!")
-            }
-            // if(activePlayer === 1){
-            //     card.player = 1
-            //     playerOneHand.splice(cardIndex, 1)
-            //     setPlayerOneHand([...playerOneHand])
-            // }
-            // else if (activePlayer === 2){
-            //     card.player = 2
-            //     playerTwoHand.splice(cardIndex, 1)
-            //     setPlayerTwoHand([...playerTwoHand])
-            // }
-            // else if (activePlayer === 3){
-            //     card.player = 3
-            //     playerThreeHand.splice(cardIndex, 1)
-            //     setPlayerThreeHand([...playerThreeHand])
-            // }
-            // else if (activePlayer === 4){
-            //     card.player = 4
-            //     playerFourHand.splice(cardIndex, 1)
-            //     setPlayerFourHand([...playerFourHand])
-            // }
-            // else if (activePlayer === 5){
-            //     card.player = 5
-            //     playerFiveHand.splice(cardIndex, 1)
-            //     setPlayerFiveHand([...playerFiveHand])
-            // }
-
-            
-        } else {
-            alert("Please play " + selectedSuit )
-        }
+            } 
     }
 
     const handleEndRound = () => {
@@ -285,7 +351,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 newTotalScores[player.name] += 10
             }
         }) 
-        console.log("New total scores:", newTotalScores)
+        // console.log("New total scores:", newTotalScores)
         if(currentRound === 10){
             // let winner
             // let highestScore = 0 
@@ -303,11 +369,13 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         if(startingPlayer === players.length){
             setPredictionPlayer(1)
             setStartingPlayer(1)
-            setActivePlayer(1) 
+            // setActivePlayer(1) 
+            setActivePlayer(null) 
         }else{
             setPredictionPlayer(currentStartingPlayer + 1)
             setStartingPlayer(currentStartingPlayer + 1)
-            setActivePlayer(currentStartingPlayer + 1)
+            // setActivePlayer(currentStartingPlayer + 1)
+            setActivePlayer(null)
         }
         setCurrentPrediction("")
         setCurrentHandNumber(1)
@@ -340,8 +408,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 highestSuitCard = card
             }
         })
-        console.log("highest Trump Card:", highestTrumpCard)
-        console.log("highest Suit Card:", highestSuitCard)
+        // console.log("highest Trump Card:", highestTrumpCard)
+        // console.log("highest Suit Card:", highestSuitCard)
 
         if(highestTrumpCard.value > 0){
             const winningPlayer = players[highestTrumpCard.player - 1]
@@ -350,6 +418,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
             roundScores[winningPlayer.name] = roundScores[winningPlayer.name] + 1
             setRoundScores({...roundScores})
+            // console.log("next player = ", highestTrumpCard.player )
+            setHandWinner(highestTrumpCard.player)
+            // setActivePlayer(highestTrumpCard.player)
             socket.emit("get-next-player", {activePlayer: highestTrumpCard.player, room})
 
                 
@@ -396,6 +467,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             setTotalScores({...totalScores})
             roundScores[winningPlayer.name] = roundScores[winningPlayer.name] + 1
             setRoundScores({...roundScores})
+            // console.log("next player = ", highestSuitCard.player )
+            setHandWinner(highestSuitCard.player)
             socket.emit("get-next-player", {activePlayer: highestSuitCard.player, room})
 
         //     if(highestSuitCard.player === 1) {
@@ -482,10 +555,11 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const randomStartPlayer = () => {
         const randomPlayer = Math.floor(Math.random() * players.length) + 1
-        setActivePlayer(randomPlayer)
+        // setActivePlayer(randomPlayer)
         setPredictionPlayer(randomPlayer)
         setStartingPlayer(randomPlayer)
-        socket.emit("get-next-player", {activePlayer: randomPlayer, room, firstPlayer: randomPlayer})
+        // socket.emit("get-next-player", {activePlayer: randomPlayer, room, firstPlayer: randomPlayer})
+        socket.emit("get-next-player", {room, firstPlayer: randomPlayer})
         socket.emit("update-predictions", {trickPrediction, nextPredictionPlayer: randomPlayer, room})
     }
 
@@ -500,8 +574,58 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }
     }
 
-    const computerTurn = () => {
-        console.log("computer turn");
+    const computerPlayCard = (computerPlayer) => {
+        // console.log("computer turn", computerPlayer);
+        // console.log("cardpot", cardPot);
+        let selectedSuit 
+        let highestTrumpCardInPot = {value: 0}
+        let highestSuitCardinPot = {value: 0}
+        if(cardPot.length > 0 && cardPot.length < players.length) selectedSuit = cardPot[0].suit
+        cardPot.forEach(card => {
+            if(card.value === "JACK")card.value = "11"
+            if(card.value === "QUEEN")card.value = "12"
+            if(card.value === "KING")card.value = "13"
+            if(card.value === "ACE")card.value = "14"
+
+            if(card.suit === selectedSuit && parseInt(card.value) > parseInt(highestSuitCardinPot.value)) highestSuitCardinPot = card
+            if(card.suit === trumpSuits[currentRound - 1] && parseInt(card.value) > parseInt(highestTrumpCardInPot.value)) highestTrumpCardInPot = card
+        })
+        let highestTrumpCardInHand = {value: 0}
+        let highestSuitCardinHand = {value: 0}
+        let lowestSuitCardinHand = {value: 100}
+        let highestCardinHand = {value: 0}
+        let lowestCardinHand = {value: 100}
+        computerPlayer.hand.forEach((card, index) => {
+            if(card.value === "JACK")card.value = "11"
+            if(card.value === "QUEEN")card.value = "12"
+            if(card.value === "KING")card.value = "13"
+            if(card.value === "ACE")card.value = "14"
+
+            card.index = index
+
+            if(card.suit === selectedSuit && parseInt(card.value) > parseInt(highestSuitCardinHand.value)) highestSuitCardinHand = card
+            if(card.suit === selectedSuit && parseInt(card.value) < parseInt(lowestSuitCardinHand.value)) lowestSuitCardinHand = card
+            if(parseInt(card.value) < parseInt(lowestCardinHand.value)) lowestCardinHand = card
+            if(parseInt(card.value) > parseInt(highestCardinHand.value)) highestCardinHand = card
+            if(card.suit === trumpSuits[currentRound - 1] && parseInt(card.value) > parseInt(highestTrumpCardInHand.value)) highestTrumpCardInHand = card
+        })
+
+        // setTimeout(() => { 
+
+            if(cardPot.length === 0 || cardPot.length === players.length) handleSelectCard(highestCardinHand, highestCardinHand.index, computerPlayer.hand)
+            else if(parseInt(highestSuitCardinHand.value) > parseInt(highestSuitCardinPot.value)) {
+                handleSelectCard(highestSuitCardinHand, highestSuitCardinHand.index, computerPlayer.hand)
+            } else if (parseInt(highestSuitCardinHand.value) < parseInt(highestSuitCardinPot.value) && parseInt(highestSuitCardinHand.value) > 0){
+                handleSelectCard(lowestSuitCardinHand, lowestSuitCardinHand.index, computerPlayer.hand)
+            } else if (parseInt(highestSuitCardinHand.value) === 0){
+                if(parseInt(highestTrumpCardInHand.value) > 0 && parseInt(highestTrumpCardInHand.value) > parseInt(highestTrumpCardInPot.value)){
+                    handleSelectCard(highestTrumpCardInHand, highestTrumpCardInHand.index, computerPlayer.hand)
+                } else {
+                    handleSelectCard(lowestCardinHand, lowestCardinHand.index, computerPlayer.hand)
+                }
+            }
+        // }, 4000)
+
     }
 
     const computerPrediction = (currentComputerPlayer, previousPrediction, currentPredictionPlayer) => {
