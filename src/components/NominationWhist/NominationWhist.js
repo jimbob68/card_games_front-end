@@ -65,7 +65,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 if(players[nextPredictionPlayer - 1].isComputer === true && players[0].id === socket.id){
                     setTimeout(() => {                  
                         computerPrediction(players[nextPredictionPlayer - 1], newPrediction, nextPredictionPlayer)
-                    }, 2000)
+                    }, 1000) // 2000
                 }
             }
         })
@@ -114,7 +114,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         if(cardPot.length === players.length){
             setTimeout(() => {
                 setCardPot([])
-            }, 2000)
+            }, 1000) // 2000
             
         }
     }, [activePlayer])
@@ -258,7 +258,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                     handleSelectCard(lowestCardInHand, lowestCardInHand.index, computerPlayer.hand)
                 }
             }
-        }, 4000)
+        }, 1000) // 4000
     }
 
     const createPlayerScores = () => {
@@ -350,17 +350,21 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         if(currentRound === 10){
             setTimeout(() => {
                 setWhistModalIsOpen(true)
-            }, 1500)
+            }, 1000) // 1500
         }
         const currentStartingPlayer = startingPlayer
         if(startingPlayer === players.length){
             setPredictionPlayer(1)
             setStartingPlayer(1)
-            setActivePlayer(1) 
+            setActivePlayer(1)
+            socket.emit("get-next-player", {activePlayer: 1, room, predictionPlayer})
+            socket.emit("update-predictions", {trickPrediction: {}, nextPredictionPlayer: 1, room})
         }else{
             setPredictionPlayer(currentStartingPlayer + 1)
             setStartingPlayer(currentStartingPlayer + 1)
             setActivePlayer(currentStartingPlayer + 1)
+            socket.emit("get-next-player", {activePlayer: currentStartingPlayer + 1, room, predictionPlayer})
+            socket.emit("update-predictions", {trickPrediction: {}, nextPredictionPlayer: currentStartingPlayer + 1, room})
         }
         setCurrentPrediction("")
         setCurrentHandNumber(1)
@@ -403,7 +407,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             setRoundScores({...roundScores})
             // console.log("trickPrediction222222222", trickPrediction)
             // console.log("predictionPlayer2222222222", predictionPlayer)
-            socket.emit("get-next-player", {activePlayer: highestTrumpCard.player, room, predictionPlayer})
+            if(playerOneHand.length > 0){
+                socket.emit("get-next-player", {activePlayer: highestTrumpCard.player, room, predictionPlayer})
+            }
 
         } else {
 
@@ -414,7 +420,9 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             setRoundScores({...roundScores})
             // console.log("trickPrediction222222222", trickPrediction)
             // console.log("predictionPlayer2222222222", predictionPlayer)
-            socket.emit("get-next-player", {activePlayer: highestSuitCard.player, room, predictionPlayer})
+            if(playerOneHand.length > 0){
+                socket.emit("get-next-player", {activePlayer: highestSuitCard.player, room, predictionPlayer})
+            }
         }
         setActivePlayer(null)
         setCurrentHandNumber(currentHandNumber + 1)
