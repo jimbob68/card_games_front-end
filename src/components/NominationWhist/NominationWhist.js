@@ -464,16 +464,50 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }
     }
 
+    const displayScoresTable = () => {
+        let rowClass
+        
+        let playersScores = players.map((player, index) => {
+            if(predictionPlayer - 1 === index || (activePlayer - 1 === index && predictionPlayer === 0)) {
+                rowClass = "yellow"
+            }else {
+                rowClass = null
+            }
+            return (
+                // <tr className={activePlayer -1 === index ? "yellow" : null }>
+                <tr className={rowClass}>
+                    <td>{player.name}</td>
+                    <td>{displayPrediction(index)}</td>
+                    <td>{roundScores[player.name]}</td>
+                    <td>{totalScores[player.name]}</td>
+                    <td>{gameScores[player.name]}</td>
+                </tr>)
+        })
+        return (
+            <table className="score-table">
+                <tr>
+                    <th>Name</th>
+                    <th>Prediction</th>
+                    <th>Round Score</th>
+                    <th>Total Score</th>
+                    <th>Game Score</th>
+                </tr>
+                {playersScores}
+            </table>
+        )
+    }
+
     return(
         <div>
             <p>Nomination Whist</p>
             <h3>{getPlayerName()}</h3>
             {players[activePlayer - 1] && <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>}
-            {players[0] && <p>{players[0].name}: P: {displayPrediction(0)} RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]}  gs:{gameScores[players[0].name]} </p>}
+            {/* {players[0] && <p>{players[0].name}: P: {displayPrediction(0)} RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]}  gs:{gameScores[players[0].name]} </p>}
             {players[1] && <p>{players[1].name}: P: {displayPrediction(1)} RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]}  gs:{gameScores[players[1].name]}</p>}
             {players[2] && <p>{players[2].name}: P: {displayPrediction(2)} RS: {roundScores[players[2].name]} TS: {totalScores[players[2].name]}  gs:{gameScores[players[2].name]}</p>}
             {players[3] && <p>{players[3].name}: P: {displayPrediction(3)} RS: {roundScores[players[3].name]} TS: {totalScores[players[3].name]}  gs:{gameScores[players[3].name]}</p>}
-            {players[4] && <p>{players[4].name}: P: {displayPrediction(4)} RS: {roundScores[players[4].name]} TS: {totalScores[players[4].name]}  gs:{gameScores[players[4].name]}</p>}
+            {players[4] && <p>{players[4].name}: P: {displayPrediction(4)} RS: {roundScores[players[4].name]} TS: {totalScores[players[4].name]}  gs:{gameScores[players[4].name]}</p>} */}
+            {displayScoresTable()}
             {displayPotCards(cardPot)}
             {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
             {displayPredictionDropdown()}
