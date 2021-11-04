@@ -37,6 +37,10 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     }, [ENDPOINT, room, joined])
 
     const handleJoinRoom = () => {
+        if(name === "" || room === ""){
+            alert("Name and Room both required!")
+            return
+        }
         if(!joined){
             socket = io(ENDPOINT, {
                 transports: ["websocket"]
@@ -53,10 +57,18 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     }
 
     const handleStartGame = () => {
+        if(players.length < 2){
+            alert("Must have at least two players.")
+            return
+        }
         socket.emit("start-game", {room: room}, () => {})
     }
 
     const handleAddComputerPlayer = () => {
+        if(players.length === 0){
+            alert("Add a human player first!")
+            return
+        }
         let playerNames = players.map(player => {
             return player.name
         })
@@ -77,15 +89,15 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 
     return(
         <div>
-            { !startGame  && <div><p>Set Up Page</p>
+            { !startGame  && <div><h3>Add Players</h3>
 
-            <input id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
+            <input disabled={joined} id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
             
-            <input type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
+            <input disabled={joined} type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
 
-            <button className="menu-button" onClick={() => handleJoinRoom()}>Join Room</button>
+            <button disabled={joined} className="menu-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
-            <button className="menu-button" onClick={() => handleAddComputerPlayer()}>Play Computer</button>
+            <button className="menu-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
             {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
 
 
