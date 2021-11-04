@@ -29,16 +29,26 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
             socket.on("handle-start-game", () => setStartGame(true))
         }
         return () => {
-            if(joined){socket.disconnect()}
+            if(joined){
+                socket.disconnect()
+                console.log("DISCONNECTED")
+            }
         }
-    }, [ENDPOINT, name, room, joined])
+    }, [ENDPOINT, room, joined])
 
     const handleJoinRoom = () => {
-        socket = io(ENDPOINT, {
-            transports: ["websocket"]
-        })
+        if(!joined){
+            socket = io(ENDPOINT, {
+                transports: ["websocket"]
+            })
+        }
         setJoined(true)
-        socket.emit("join-room", { name, room, isComputer: false }, () => {
+        socket.emit("join-room", { name, room, isComputer: false }, (error) => {
+            console.log("error:", error)
+            if(error[0] !== null){
+                alert("Username is taken please type another one!")
+                document.getElementById("name-input").value = ""
+            }  
         })
     }
 
@@ -69,7 +79,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
         <div>
             { !startGame  && <div><p>Set Up Page</p>
 
-            <input type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
+            <input id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
             
             <input type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
 
@@ -77,6 +87,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 
             <button className="menu-button" onClick={() => handleAddComputerPlayer()}>Play Computer</button>
             {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
+
 
             <button onClick={() => handleStartGame()}>Start Game</button>
             </div>}

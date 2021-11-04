@@ -526,17 +526,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     return(
         <div>
             <p>Nomination Whist</p>
-            <select value={numberOfPlayers} onChange={(event) => {
-				setNumberOfPlayers(parseInt(event.target.value))}}>
-				<option value={0}>No. of Players</option>
-				<option value={1}>1</option>
-				<option value={2}>2</option>
-				<option value={3}>3</option>
-				<option value={4}>4</option>
-                <option value={5}>5</option>
-			</select>
-
-            <button onClick={() => handleDealCards(1)}>Start Game</button>
             <h3>{getPlayerName()}</h3>
             {players[activePlayer - 1] && <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>}
             {players[0] && <p>{players[0].name}: RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]} P: {displayPrediction(0)} gs:{gameScores[players[0].name]} </p>}

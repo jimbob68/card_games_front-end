@@ -7,9 +7,8 @@ const PlayersList = ({ socket, setPlayers, players, setStartGame }) => {
         console.log("socket:", socket)
         socket.on("players-list", ({playersList}) => {
             setPlayers(playersList)
-           console.log("playersList:", playersList)
+            console.log("playersList:", playersList)
         })
-        
     }, [])
 
     const getPlayerNames = () => {
