@@ -22,6 +22,8 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
         {name: "robby", room, isComputer: true, computerId: 4}
 ]    
 
+    const randomComputerNames = ["Hugo", "Lennon", "Hank", "Conroy", "Felix", "River", "Neo", "Jasper", "August", "Evander", "Floyd", "Lloyd", "Kingston", "Hayden", "Rhys", "Leo", "Jose", "Dominic", "Margaret", "Georgia", "Quinn", "Austin", "Sergio", "Marco", "Flint", "Gerald", "Conan", "Jules", "Roman", "Tristan", "Becca", "Pascal", "Warwick", "Eloise", "Dionne", "Jamila", "Faye", "Moira", "Agnes", "Senga", "Poppy", "Violet", "Arial", "Emmy", "Hazel", "Charmaine", "Chantelle", "Fleur", "Hope", "Esme", "Gracie", "Amelia", "Ivy", "Beatrix", "Henry", "Norman", "Miriam", "Edith", "Frank", "Monty", "Nola", "Florence", "Gemini"]
+
     useEffect(() => {
         if(joined){
             socket.on("handle-start-game", () => setStartGame(true))
@@ -45,8 +47,18 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     }
 
     const handleAddComputerPlayer = () => {
+        let playerNames = players.map(player => {
+            return player.name
+        })
+
         if(players.length < 5){
+            let chosenComputerName
+            do { 
+                chosenComputerName = randomComputerNames[Math.floor(Math.random() * (randomComputerNames.length - 1))] 
+            } while(playerNames.includes(chosenComputerName))
+            computerPlayers[numberOfComputerPlayers].name = chosenComputerName
             socket.emit("join-room", computerPlayers[numberOfComputerPlayers], () => {
+
 
             })
             setNumberOfComputerPlayers(numberOfComputerPlayers + 1)
