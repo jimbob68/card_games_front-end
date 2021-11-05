@@ -3,8 +3,53 @@
     color: black;
 }
 
+
 .score-table {
     margin-left: auto;
     margin-right: auto;
+    
+}
+
+.whist-card-pot {
+    background-color: rgb(3, 85, 3);
+    min-height: 160px;
+    border: 1px solid white;
+    border-radius: 20px;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
     margin-bottom: 30px;
+    padding-bottom: 20px;
+
+}
+
+.card-pot-title {
+    color: white;
+    margin: 0;
+    padding: 5px;
+} 
+
+.whist-game-title {
+    margin: 0 !important;
+    padding: 5px !important;
+}
+
+.whist-info-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    justify-items: center;
+    margin-bottom: 20px;
+}
+
+.trump-card-image {
+    background-color: white;
+    padding: 30px 15px;
+    border-radius: 10px;
+    height: 50px;
+    width: 50px;
+}
+
+.trump-suit-title {
+    margin: 0;
 }

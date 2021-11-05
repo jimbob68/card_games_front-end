@@ -2,6 +2,12 @@ import React, { useEffect, useState } from 'react'
 import './NominationWhist.css'
 import backOfCard from '../../assets/back_of_card.png'
 import WhistResultsModal from "./WhistResultsModal.js"
+import NONE from "../../assets/NONE.png"
+import SPADES from "../../assets/SPADES.png"
+import HEARTS from "../../assets/HEARTS.png"
+import CLUBS from "../../assets/CLUBS.png"
+import DIAMONDS from "../../assets/DIAMONDS.png"
+
 const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const [ deckOfCards, setDeckOfCards ] = useState([])
@@ -410,7 +416,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const displayPotCards = (hand, playerNumber) => {
             const cardImages = hand.map((card, index) => <img className={imageSize} src={card.image} alt={card.code} />);
-            return <div className="whist-player-hand">{cardImages}</div>;
+            return <div className="whist-card-pot"><p className="card-pot-title">Card Pot</p>{cardImages}</div>;
     }
 
     const getPlayerName = () => {
@@ -499,15 +505,24 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     return(
         <div>
-            <p>Nomination Whist</p>
-            <h3>{getPlayerName()}</h3>
-            {players[activePlayer - 1] && <p>Active Player: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]} Round: {currentRound}</p>}
+            <h1 className="whist-game-title">Nomination Whist</h1>
+            {/* <h3>{getPlayerName()}</h3> */}
+            {players[activePlayer - 1] && <p>Player Turn: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]}  Round: {currentRound}</p>}
+            
             {/* {players[0] && <p>{players[0].name}: P: {displayPrediction(0)} RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]}  gs:{gameScores[players[0].name]} </p>}
             {players[1] && <p>{players[1].name}: P: {displayPrediction(1)} RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]}  gs:{gameScores[players[1].name]}</p>}
             {players[2] && <p>{players[2].name}: P: {displayPrediction(2)} RS: {roundScores[players[2].name]} TS: {totalScores[players[2].name]}  gs:{gameScores[players[2].name]}</p>}
             {players[3] && <p>{players[3].name}: P: {displayPrediction(3)} RS: {roundScores[players[3].name]} TS: {totalScores[players[3].name]}  gs:{gameScores[players[3].name]}</p>}
             {players[4] && <p>{players[4].name}: P: {displayPrediction(4)} RS: {roundScores[players[4].name]} TS: {totalScores[players[4].name]}  gs:{gameScores[players[4].name]}</p>} */}
-            {displayScoresTable()}
+            <div className="whist-info-container">
+                <p>Round Number:</p>
+                {displayScoresTable()}
+                <div>
+                    <p className="trump-suit-title">Trump Suit</p>
+                    <img className="trump-card-image" alt="card suit" src={require('../../assets/' + trumpSuits[currentRound - 1] + '.png').default}/>
+                    {/* <img className="trump-card-image" alt="card suit" src={CLUBS}/> */}
+                </div>
+            </div>
             {displayPotCards(cardPot)}
             {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
             {displayPredictionDropdown()}
