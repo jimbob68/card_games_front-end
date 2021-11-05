@@ -15,10 +15,10 @@
     min-height: 160px;
     border: 1px solid white;
     border-radius: 20px;
-    width: 80%;
+    width: 70%;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     padding-bottom: 20px;
 
 }
@@ -40,6 +40,10 @@
     align-items: center;
     justify-items: center;
     margin-bottom: 20px;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+
 }
 
 .trump-card-image {
@@ -52,4 +56,38 @@
 
 .trump-suit-title {
     margin: 0;
+}
+
+.whist-round-number-container {
+    width: 80px;
+    height: 110px;
+    line-height: 110px;
+}
+
+.whist-round-number {
+    font-size: 40px;   
+    background-color: white;
+    margin: 0px;
+    color: black;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.whist-player-turn-name {
+    font-weight: bold;
+}
+
+.whist-prediction-select {
+    margin-bottom: 15px;
+}
+
+@media screen and (max-width: 1000px) {
+    .whist-card-pot {
+        width: 90%;
+    }
+
+    .whist-info-container {
+        width: 90%;
+    }
+    
 }

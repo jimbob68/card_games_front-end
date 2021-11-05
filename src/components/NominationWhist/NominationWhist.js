@@ -438,7 +438,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                     optionsArray.push(<option value={index}>{index}</option>)
                 }                
             }
-        return <select value={currentPrediction} onChange={(event) => setCurrentPrediction(event.target.value)}>{optionsArray}</select>
+        return <select className="whist-prediction-select" value={currentPrediction} onChange={(event) => setCurrentPrediction(event.target.value)}>{optionsArray}</select>
     }
 
     const handleConfirmPrediction = () => {
@@ -507,7 +507,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         <div>
             <h1 className="whist-game-title">Nomination Whist</h1>
             {/* <h3>{getPlayerName()}</h3> */}
-            {players[activePlayer - 1] && <p>Player Turn: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]}  Round: {currentRound}</p>}
+            {/* {players[activePlayer - 1] && <p>Player Turn: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]}  Round: {currentRound}</p>} */}
+            {players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn: {players[activePlayer - 1].name}</p>}
             
             {/* {players[0] && <p>{players[0].name}: P: {displayPrediction(0)} RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]}  gs:{gameScores[players[0].name]} </p>}
             {players[1] && <p>{players[1].name}: P: {displayPrediction(1)} RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]}  gs:{gameScores[players[1].name]}</p>}
@@ -515,7 +516,12 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             {players[3] && <p>{players[3].name}: P: {displayPrediction(3)} RS: {roundScores[players[3].name]} TS: {totalScores[players[3].name]}  gs:{gameScores[players[3].name]}</p>}
             {players[4] && <p>{players[4].name}: P: {displayPrediction(4)} RS: {roundScores[players[4].name]} TS: {totalScores[players[4].name]}  gs:{gameScores[players[4].name]}</p>} */}
             <div className="whist-info-container">
-                <p>Round Number:</p>
+                <div className="whist-round-container">
+                    <p className="trump-suit-title">Round</p>
+                    <div className="whist-round-number-container">
+                        <p className="whist-round-number">{currentRound}</p>
+                    </div>
+                </div>
                 {displayScoresTable()}
                 <div>
                     <p className="trump-suit-title">Trump Suit</p>
