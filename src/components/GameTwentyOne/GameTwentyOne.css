@@ -4,8 +4,7 @@
 	min-height: 100vh;
 }
 .blackjack-container h1 {
-	margin: 0;
-	padding: 20px;
+	padding-bottom: 20px;
 }
 
 .small {
@@ -30,7 +29,6 @@ img {
 
 .home-button {
 	background-color: rgb(202, 16, 131);
-	border-radius: 4px;
 	color: white;
 	margin-bottom: 20px;
 	margin-right: 10px;
@@ -38,7 +36,6 @@ img {
 
 .deal-button {
 	background-color: rgb(202, 16, 131);
-	border-radius: 4px;
 	color: white;
 	margin-left: 10px;
 }
@@ -50,7 +47,6 @@ img {
 
 .new-game-button {
 	background-color: rgb(202, 16, 131);
-	border-radius: 4px;
 	color: white;
 	margin-right: 10px;
 }
@@ -64,7 +60,6 @@ img {
 
 .rules-button {
 	background-color: rgb(202, 16, 131);
-	border-radius: 4px;
 	color: white;
 	margin-right: 10px;
 }

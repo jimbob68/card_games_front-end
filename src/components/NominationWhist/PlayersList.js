@@ -18,8 +18,8 @@ const PlayersList = ({ socket, setPlayers, players, setStartGame }) => {
     return (
 
         <div>
-            <p>PlayersList</p>
-            {getPlayerNames()}
+            <h3>Players waiting in room...</h3>
+            <h3>{getPlayerNames()}</h3>
         </div>
     )
 

@@ -532,7 +532,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             {displayPotCards(cardPot)}
             {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
             {displayPredictionDropdown()}
-            <button disabled={currentPrediction === ""} onClick={ () => handleConfirmPrediction()} >Confirm Prediction</button>
+            <button className="confirm-prediction-button"disabled={currentPrediction === ""} onClick={ () => handleConfirmPrediction()} >Confirm Prediction</button>
             </div>} 
             {displayCards(playerOneHand)}
             <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores} setCurrentRound={setCurrentRound} createPlayerScores={createPlayerScores} gameScores={gameScores} setGameScores={setGameScores}/>

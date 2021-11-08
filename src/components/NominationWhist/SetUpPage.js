@@ -88,23 +88,24 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     }
 
     return(
-        <div>
-            { !startGame  && <div><h3>Add Players</h3>
+        <div className="set-up-page-container">
+            { !startGame  && <div>
+                <h1 className="set-up-page-title">Add players...</h1>
 
             <input disabled={joined} id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
             
             <input disabled={joined} type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
 
-            <button disabled={joined} className="menu-button" onClick={() => handleJoinRoom()}>Join Room</button>
+            <button disabled={joined} className="set-up-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
-            <button className="menu-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
+            <button className="set-up-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
             {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
+            <br/>
 
-
-            <button onClick={() => handleStartGame()}>Start Game</button>
+            <button className="set-up-button" onClick={() => handleStartGame()}>Start Game</button>
             </div>}
 
-            {startGame && <NominationWhist  setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room}  />}
+            {startGame && <NominationWhist setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room}  />}
 
         </div>
     )

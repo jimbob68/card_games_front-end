@@ -23,9 +23,7 @@
 }
 
 .close-button {
-
-	background-color: rgb(202, 16, 131);
-	border-radius: 4px;
+	background-color: rgb(202, 16, 131) !important;
 	color: white;
 }
 

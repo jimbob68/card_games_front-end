@@ -492,7 +492,7 @@ const GameTwentyOne = ({  setCurrentGame  }) => {
 		setPlayerTwoWallet(playerTwoBank);
 		setPlayerThreeWallet(playerThreeBank);
 		setPlayerFourWallet(playerFourBank);
-		resultsVariable.unshift('Dealer score ' + computerScore)
+		resultsVariable.unshift('The Dealer scores ' + computerScore)
 		setResultsState(resultsVariable)
 		setDealButtonDisabled(false)
 	};

@@ -1,3 +1,8 @@
+.whist-game-title {
+    padding-top: 10px !important;
+    padding-bottom: 15px;
+}
+
 .yellow {
     background-color: yellow;
     color: black;
@@ -11,16 +16,15 @@
 }
 
 .whist-card-pot {
-    background-color: rgb(3, 85, 3);
+    background-color: rgb(0, 80, 0);
     min-height: 160px;
-    border: 1px solid white;
+    border: 3px solid white;
     border-radius: 20px;
     width: 70%;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 15px;
     padding-bottom: 20px;
-
 }
 
 .card-pot-title {
@@ -28,11 +32,6 @@
     margin: 0;
     padding: 5px;
 } 
-
-.whist-game-title {
-    margin: 0 !important;
-    padding: 5px !important;
-}
 
 .whist-info-container {
     display: grid;
@@ -47,15 +46,18 @@
 }
 
 .trump-card-image {
-    background-color: white;
+    background-color: ghostwhite;
     padding: 30px 15px;
     border-radius: 10px;
     height: 50px;
     width: 50px;
+    border: 2px solid black;
+    box-shadow: 5px 10px 18px #3a3a3a;
 }
 
 .trump-suit-title {
     margin: 0;
+    padding-bottom: 4px;
 }
 
 .whist-round-number-container {
@@ -66,19 +68,26 @@
 
 .whist-round-number {
     font-size: 40px;   
-    background-color: white;
+    background-color: ghostwhite;
     margin: 0px;
     color: black;
     border-radius: 10px;
     font-weight: bold;
+    border: 2px solid black;
+    box-shadow: 5px 10px 18px #3a3a3a;
 }
 
 .whist-player-turn-name {
     font-weight: bold;
+    margin: 0;
 }
 
 .whist-prediction-select {
     margin-bottom: 15px;
+}
+
+.confirm-prediction-button {
+    background-color: lightsteelblue;
 }
 
 @media screen and (max-width: 1000px) {

@@ -1,0 +1,17 @@
+.set-up-page-container {
+    margin: 0;
+    text-align: center;
+    background-color: rgb(0, 100, 0);
+    color: white;
+    min-height: 100vh;
+}
+
+.set-up-page-title {
+    padding-bottom: 30px;
+}
+
+.set-up-button {
+    background-color: lightsteelblue;
+    color: black;
+    margin: 5px;
+}
