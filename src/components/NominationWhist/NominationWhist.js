@@ -526,7 +526,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
             {/* <h3>{getPlayerName()}</h3> */}
             {/* {players[activePlayer - 1] && <p>Player Turn: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]}  Round: {currentRound}</p>} */}
-            {players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn: {predictionPlayer === 0 ?  players[activePlayer - 1].name : players[predictionPlayer -1].name}</p>}
+            
              
             {/* {players[0] && <p>{players[0].name}: P: {displayPrediction(0)} RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]}  gs:{gameScores[players[0].name]} </p>}
             {players[1] && <p>{players[1].name}: P: {displayPrediction(1)} RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]}  gs:{gameScores[players[1].name]}</p>}
@@ -541,12 +541,15 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                     </div>
                 </div>
                 {displayScoresTable()}
-                <div>
+                <div className="trump-suit-container">
                     <p className="trump-suit-title">Trump Suit</p>
                     <img className="trump-card-image" alt="card suit" src={require('../../assets/' + trumpSuits[currentRound - 1] + '.png').default}/>
                     {/* <img className="trump-card-image" alt="card suit" src={CLUBS}/> */}
                 </div>
             </div>
+
+            {players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn: {predictionPlayer === 0 ?  players[activePlayer - 1].name : players[predictionPlayer -1].name}</p>}
+
             {displayPotCards(cardPot)}
             {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
             {displayPredictionDropdown()}
