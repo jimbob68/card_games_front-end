@@ -33,6 +33,14 @@
     padding: 5px;
 } 
 
+.player-card-container {
+    display: inline-block;
+}
+
+.player-card-container p {
+    margin: 0px;
+}
+
 .whist-info-container {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr;

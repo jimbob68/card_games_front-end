@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './NominationWhist.css'
 import backOfCard from '../../assets/back_of_card.png'
 import WhistResultsModal from "./WhistResultsModal.js"
-import NONE from "../../assets/NONE.png"
-import SPADES from "../../assets/SPADES.png"
-import HEARTS from "../../assets/HEARTS.png"
-import CLUBS from "../../assets/CLUBS.png"
-import DIAMONDS from "../../assets/DIAMONDS.png"
+import RulesOfNominationWhist from "./RulesOfNominationWhist.js"
 
 const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
@@ -26,6 +22,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ totalScores, setTotalScores ] = useState({})
     const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
     const [ gameScores, setGameScores ] = useState({})
+    const [ whistRulesModalIsOpen, setWhistRulesModalIsOpen ] = useState(false)
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
 
@@ -241,7 +238,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                     handleSelectCard(lowestCardInHand, lowestCardInHand.index, computerPlayer.hand)
                 }
             }
-        }, 4000) // 1000
+        }, 3000) // 1000
     }
 
     const createPlayerScores = () => {
@@ -343,7 +340,11 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         setCurrentHandNumber(1)
         setTrickPrediction({})
         setTimeout(() => {
+            if(currentRoundVariable === 10) {
+                setCurrentRound(1)
+            } else {
             setCurrentRound(currentRoundVariable + 1)
+            }
             setCardPot([])
             setTotalScores(newTotalScores)
             setRoundScores(newRoundScores)
@@ -391,6 +392,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
                 socket.emit("get-next-player", {activePlayer: highestSuitCard.player, room, predictionPlayer})
             }
         }
+        console.log("Total Scores:", totalScores)
         setActivePlayer(null)
         setCurrentHandNumber(currentHandNumber + 1)
     }
@@ -414,9 +416,14 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         }
     }
 
-    const displayPotCards = (hand, playerNumber) => {
-            const cardImages = hand.map((card, index) => <img className={imageSize} src={card.image} alt={card.code} />);
-            return <div className="whist-card-pot"><p className="card-pot-title">Card Pot</p>{cardImages}</div>;
+    const displayPotCards = (hand) => {
+        const cardImages = hand.map((card) => {
+            return <div className="player-card-container">
+                <img className={imageSize} src={card.image} alt={card.code} />
+                <p>{players[card.player - 1].name}</p>
+            </div>
+        });
+        return <div className="whist-card-pot"><p className="card-pot-title">Card Pot</p>{cardImages}</div>;
     }
 
     const getPlayerName = () => {
@@ -506,10 +513,21 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     return(
         <div>
             <h1 className="whist-game-title">Nomination Whist</h1>
+            <button onClick={() => setWhistRulesModalIsOpen(true)}>Rules</button>
+
+            <select value={imageSize} onChange={(event) => {
+				
+				setImageSize(event.target.value)}}>
+				<option selected="selected" value={"medium"}>Card size</option>
+				<option value={"small"}>small</option>
+				<option value={"medium"}>medium</option>
+				<option value={"large"}>large</option>
+			</select>
+
             {/* <h3>{getPlayerName()}</h3> */}
             {/* {players[activePlayer - 1] && <p>Player Turn: {players[activePlayer - 1].name}  Trump Suit: {trumpSuits[currentRound - 1]}  Round: {currentRound}</p>} */}
-            {players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn: {players[activePlayer - 1].name}</p>}
-            
+            {players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn: {predictionPlayer === 0 ?  players[activePlayer - 1].name : players[predictionPlayer -1].name}</p>}
+             
             {/* {players[0] && <p>{players[0].name}: P: {displayPrediction(0)} RS: {roundScores[players[0].name]} TS: {totalScores[players[0].name]}  gs:{gameScores[players[0].name]} </p>}
             {players[1] && <p>{players[1].name}: P: {displayPrediction(1)} RS: {roundScores[players[1].name]} TS: {totalScores[players[1].name]}  gs:{gameScores[players[1].name]}</p>}
             {players[2] && <p>{players[2].name}: P: {displayPrediction(2)} RS: {roundScores[players[2].name]} TS: {totalScores[players[2].name]}  gs:{gameScores[players[2].name]}</p>}
@@ -536,6 +554,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             </div>} 
             {displayCards(playerOneHand)}
             <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores} setCurrentRound={setCurrentRound} createPlayerScores={createPlayerScores} gameScores={gameScores} setGameScores={setGameScores}/>
+            <RulesOfNominationWhist whistRulesModalIsOpen={whistRulesModalIsOpen} setWhistRulesModalIsOpen={setWhistRulesModalIsOpen}/>
         </div>
     )
 }

@@ -19,9 +19,7 @@ const WhistResultsModal = (  {
             winnersArray.forEach((winner, index) => {
                 localGameScores[winner[0]] += 1 
             })
-
             setGameScores({...localGameScores})
-        
             setWhistModalIsOpen(false)
             setCurrentRound(1)
             createPlayerScores()
@@ -55,9 +53,18 @@ const WhistResultsModal = (  {
             setWinnersStatement(announceWinner)
         }
 
+        const displayScores = () => {
+            const playersFinalScores = []
+            Object.entries(totalScores).forEach(player => {
+                playersFinalScores.push(<p>{player[0]} Scored {player[1]}</p>)
+            })
+            return playersFinalScores
+        }
+
     return(
         <Modal className="whist-results-modal" overlayClassName="whist-overlay" isOpen={whistModalIsOpen} appElement={document.getElementById('root')}>
             <p>{winnersStatement}</p>
+            {displayScores()}
         <button className="close-button" onClick={() => handleClose() }>Close</button>
         </Modal>
     )
