@@ -461,7 +461,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         const cardImages = hand.map((card) => {
             return <div className="player-card-container">
                 <img className={imageSize} src={card.image} alt={card.code} />
-                <p>{players[card.player - 1].name}</p>
+                <p className="player-card-name" >{players[card.player - 1].name}</p>
             </div>
         });
         return <div className="whist-card-pot"><p className="card-pot-title">Card Pot</p>{cardImages}</div>;
