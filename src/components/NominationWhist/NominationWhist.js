@@ -3,6 +3,7 @@ import './NominationWhist.css'
 import backOfCard from '../../assets/back_of_card.png'
 import WhistResultsModal from "./WhistResultsModal.js"
 import RulesOfNominationWhist from "./RulesOfNominationWhist.js"
+import AlertModal from './AlertModal.js'
 
 const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
@@ -23,6 +24,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ whistModalIsOpen, setWhistModalIsOpen ] = useState(false)
     const [ gameScores, setGameScores ] = useState({})
     const [ whistRulesModalIsOpen, setWhistRulesModalIsOpen ] = useState(false)
+    const [ errorText, setErrorText ] = useState("")
+    const [ whistAlertModalIsOpen, setWhistAlertModalIsOpen ] = useState(false)
 
     const trumpSuits = ["CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE", "CLUBS", "DIAMONDS", "HEARTS", "SPADES", "NONE" ]
 
@@ -169,8 +172,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         clubsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
         diamondsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
         spadesInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
-
-        console.log("HAND", [...clubsInHand, ...diamondsInHand, ...spadesInHand, ...heartsInHand])
+        
         return [...clubsInHand, ...diamondsInHand, ...spadesInHand, ...heartsInHand]
     }
 
@@ -296,7 +298,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
     const handleSelectCard = (card, cardIndex, hand) => {
         if(predictionPlayer > 0 && players[activePlayer - 1].isComputer === false){
-            alert("Predictions in progress!!!")
+            setErrorText("Predictions in progress!!!")
+            setWhistAlertModalIsOpen(true)
             return 
         }
         let hasSelectedSuit = false
@@ -319,7 +322,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             return
         }
         if(socket.id === players[activePlayer - 1].id && (card.suit !== selectedSuit && hasSelectedSuit)){
-            alert("Please Play " + selectedSuit)
+            setErrorText("Please Play " + selectedSuit)
+            setWhistAlertModalIsOpen(true)
             return
         }
         if(socket.id === players[activePlayer - 1].id || players[activePlayer - 1].isComputer === true){
@@ -450,10 +454,16 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     }
 
     const handleClickCard = (card, index, hand) => {
+        if(predictionPlayer > 0){
+            setErrorText("Predictions in progress!!!")
+            setWhistAlertModalIsOpen(true)
+            return 
+        }
         if(players[activePlayer - 1].id === socket.id){
             handleSelectCard(card, index, hand)
         } else {
-            alert("Wait your turn!!!")
+            setErrorText("Wait your turn!!!")
+            setWhistAlertModalIsOpen(true)
         }
     }
 
@@ -598,6 +608,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             {displayCards(playerOneHand)}
             <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores} setCurrentRound={setCurrentRound} createPlayerScores={createPlayerScores} gameScores={gameScores} setGameScores={setGameScores}/>
             <RulesOfNominationWhist whistRulesModalIsOpen={whistRulesModalIsOpen} setWhistRulesModalIsOpen={setWhistRulesModalIsOpen}/>
+            <AlertModal error={errorText} whistAlertModalIsOpen={whistAlertModalIsOpen} setWhistAlertModalIsOpen={setWhistAlertModalIsOpen}/>
         </div>
     )
 }
