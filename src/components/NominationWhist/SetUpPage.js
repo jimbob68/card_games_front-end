@@ -13,6 +13,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     const [ joined, setJoined ] = useState(false)
     const [ startGame, setStartGame ] = useState(false)
     const [ numberOfComputerPlayers, setNumberOfComputerPlayers ] = useState(0)
+    const [ addComputerButtonDisabled, setAddComputerButtonDisabled ] = useState(false)
     const ENDPOINT = "localhost:5000"
 
     const computerPlayers = [
@@ -74,13 +75,14 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
         })
 
         if(players.length < 5){
+            setAddComputerButtonDisabled(true)
             let chosenComputerName
             do { 
                 chosenComputerName = randomComputerNames[Math.floor(Math.random() * (randomComputerNames.length - 1))] 
             } while(playerNames.includes(chosenComputerName))
             computerPlayers[numberOfComputerPlayers].name = chosenComputerName
             socket.emit("join-room", computerPlayers[numberOfComputerPlayers], () => {
-
+                setAddComputerButtonDisabled(false)
 
             })
             setNumberOfComputerPlayers(numberOfComputerPlayers + 1)
@@ -98,7 +100,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 
             <button disabled={joined} className="set-up-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
-            <button className="set-up-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
+            <button disabled={addComputerButtonDisabled} className="set-up-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
             {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
             <br/>
 

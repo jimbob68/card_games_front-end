@@ -9,7 +9,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const [ deckOfCards, setDeckOfCards ] = useState([])
     const [ numberOfPlayers, setNumberOfPlayers ] = useState(players.length)
     const [ playerOneHand, setPlayerOneHand ] = useState([])
-    const [ imageSize, setImageSize ] = useState("whist-medium")
+    const [ imageSize, setImageSize ] = useState("medium")
     const [ activePlayer, setActivePlayer ] = useState(1)
     const [ cardPot, setCardPot ] = useState([])
     const [ currentRound, setCurrentRound ] = useState(1)
@@ -124,13 +124,54 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
     const handleDealCards = (currentRoundVariable) => {
         players.forEach((player, index) => {
             const playerCards = deckOfCards.slice((index * 10), ((index + 1) * 10) - currentRoundVariable + 1)
+            let sortedPlayerHand = sortPlayerHand(playerCards)
             if(player.isComputer === true && playerCards.length !== 0){
-                player.hand = playerCards
+                player.hand = sortedPlayerHand
             } else {
-                socket.emit("player-hand", {playerId: player.id, hand: playerCards}) 
+                socket.emit("player-hand", {playerId: player.id, hand: sortedPlayerHand}) 
             }
             setPlayers([...players])
         })
+    }
+
+    const sortPlayerHand = (playerCards) => {
+
+
+
+        let heartsInHand = []
+        let clubsInHand = []
+        let diamondsInHand = []
+        let spadesInHand = []
+        playerCards.forEach(card => {
+
+            if(card.value === "JACK")card.value = "11"
+            if(card.value === "QUEEN")card.value = "12"
+            if(card.value === "KING")card.value = "13"
+            if(card.value === "ACE")card.value = "14"
+
+            switch(card.suit){
+                case "HEARTS":
+                    heartsInHand.push(card)
+                break;
+                case "CLUBS":
+                    clubsInHand.push(card)
+                break;
+                case "DIAMONDS":
+                    diamondsInHand.push(card)
+                break;
+                case "SPADES":
+                    spadesInHand.push(card)
+                break;
+                default:
+            }
+        })
+        heartsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+        clubsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+        diamondsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+        spadesInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
+
+        console.log("HAND", [...clubsInHand, ...diamondsInHand, ...spadesInHand, ...heartsInHand])
+        return [...clubsInHand, ...diamondsInHand, ...spadesInHand, ...heartsInHand]
     }
 
     const computerPrediction = (currentComputerPlayer, previousPrediction, currentPredictionPlayer) => {
@@ -144,7 +185,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         hand.forEach(card => {
             if(card.suit === trumpSuits[currentRound - 1]){
                 goodCards += 1
-            } else if(parseInt(card.value) > 9 || card.value === "JACK" || card.value === "QUEEN" || card.value === "KING" || card.value === "ACE"){
+            } else if(parseInt(card.value) > 9){
                 goodCards += 1
             }
         })
@@ -185,10 +226,10 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             selectedSuit = cardPot[0].suit
         }
         cardPot.forEach(card => {
-            if(card.value === "JACK") card.value = 11
-            if(card.value === "QUEEN") card.value = 12
-            if(card.value === "KING") card.value = 13
-            if(card.value === "ACE") card.value = 14
+            // if(card.value === "JACK") card.value = 11
+            // if(card.value === "QUEEN") card.value = 12
+            // if(card.value === "KING") card.value = 13
+            // if(card.value === "ACE") card.value = 14
             if(card.suit === selectedSuit && parseInt(card.value) > parseInt(highestSuitCardInPot.value)){
                 highestSuitCardInPot = card
             }
@@ -203,10 +244,10 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         let lowestCardInHand = {value: 100}
 
         computerPlayer.hand.forEach((card, index) => {
-            if(card.value === "JACK") card.value = 11
-            if(card.value === "QUEEN") card.value = 12
-            if(card.value === "KING") card.value = 13
-            if(card.value === "ACE") card.value = 14
+            // if(card.value === "JACK") card.value = 11
+            // if(card.value === "QUEEN") card.value = 12
+            // if(card.value === "KING") card.value = 13
+            // if(card.value === "ACE") card.value = 14
             card.index = index
             if(card.suit === selectedSuit && parseInt(card.value) > parseInt(highestSuitCardInHand.value)){
                 highestSuitCardInHand = card
@@ -357,10 +398,10 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         let highestTrumpCard = {value: 0}
         let highestSuitCard = {value: 0}
         cardPot.forEach(card => {
-            if(card.value === "JACK")card.value = "11"
-            if(card.value === "QUEEN")card.value = "12"
-            if(card.value === "KING")card.value = "13"
-            if(card.value === "ACE")card.value = "14"
+            // if(card.value === "JACK")card.value = "11"
+            // if(card.value === "QUEEN")card.value = "12"
+            // if(card.value === "KING")card.value = "13"
+            // if(card.value === "ACE")card.value = "14"
 
             if(card.suit === trumpSuit && parseInt(card.value) > parseInt(highestTrumpCard.value)){
                 highestTrumpCard = card
@@ -516,7 +557,6 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             <button onClick={() => setWhistRulesModalIsOpen(true)}>Rules</button>
 
             <select value={imageSize} onChange={(event) => {
-				
 				setImageSize(event.target.value)}}>
 				<option selected="selected" value={"medium"}>Card size</option>
 				<option value={"small"}>small</option>
@@ -536,14 +576,14 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             <div className="whist-info-container">
                 <div className="whist-round-container">
                     <p className="trump-suit-title">Round</p>
-                    <div className="whist-round-number-container">
+                    <div className={"whist-round-number-container round-" + imageSize}>
                         <p className="whist-round-number">{currentRound}</p>
                     </div>
                 </div>
                 {displayScoresTable()}
                 <div className="trump-suit-container">
                     <p className="trump-suit-title">Trump Suit</p>
-                    <img className="trump-card-image" alt="card suit" src={require('../../assets/' + trumpSuits[currentRound - 1] + '.png').default}/>
+                    <img className={"trump-card-image trump-card-" + imageSize} alt="card suit" src={require('../../assets/' + trumpSuits[currentRound - 1] + '.png').default}/>
                     {/* <img className="trump-card-image" alt="card suit" src={CLUBS}/> */}
                 </div>
             </div>
