@@ -5,7 +5,7 @@ import WhistResultsModal from "./WhistResultsModal.js"
 import RulesOfNominationWhist from "./RulesOfNominationWhist.js"
 import AlertModal from './AlertModal.js'
 
-const NominationWhist = ({ players, setPlayers, socket, room }) => {
+const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) => {
 
     const [ deckOfCards, setDeckOfCards ] = useState([])
     const [ numberOfPlayers, setNumberOfPlayers ] = useState(players.length)
@@ -172,7 +172,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         clubsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
         diamondsInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
         spadesInHand.sort((a, b) => parseInt(a.value) - parseInt(b.value))
-        
+
         return [...clubsInHand, ...diamondsInHand, ...spadesInHand, ...heartsInHand]
     }
 
@@ -561,9 +561,15 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
         )
     }
 
+    const handleClickHome = () => {
+        setErrorText("Are you sure you want to leave, this will end the game for everyone!")
+        setWhistAlertModalIsOpen(true)
+    }
+
     return(
         <div>
             <h1 className="whist-game-title">Nomination Whist</h1>
+            <button className="home-button" onClick={() => handleClickHome()}>Home</button>
             <button onClick={() => setWhistRulesModalIsOpen(true)}>Rules</button>
 
             <select value={imageSize} onChange={(event) => {
@@ -600,6 +606,8 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
 
             {players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn: {predictionPlayer === 0 ?  players[activePlayer - 1].name : players[predictionPlayer -1].name}</p>}
 
+            {!players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn:</p>}
+
             {displayPotCards(cardPot)}
             {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
             {displayPredictionDropdown()}
@@ -608,7 +616,7 @@ const NominationWhist = ({ players, setPlayers, socket, room }) => {
             {displayCards(playerOneHand)}
             <WhistResultsModal whistModalIsOpen={whistModalIsOpen} setWhistModalIsOpen={setWhistModalIsOpen} totalScores={totalScores} setCurrentRound={setCurrentRound} createPlayerScores={createPlayerScores} gameScores={gameScores} setGameScores={setGameScores}/>
             <RulesOfNominationWhist whistRulesModalIsOpen={whistRulesModalIsOpen} setWhistRulesModalIsOpen={setWhistRulesModalIsOpen}/>
-            <AlertModal error={errorText} whistAlertModalIsOpen={whistAlertModalIsOpen} setWhistAlertModalIsOpen={setWhistAlertModalIsOpen}/>
+            <AlertModal error={errorText} whistAlertModalIsOpen={whistAlertModalIsOpen} setWhistAlertModalIsOpen={setWhistAlertModalIsOpen} setCurrentGame={setCurrentGame}/>
         </div>
     )
 }
