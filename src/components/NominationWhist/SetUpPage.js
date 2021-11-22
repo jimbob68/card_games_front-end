@@ -14,6 +14,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     const [ startGame, setStartGame ] = useState(false)
     const [ numberOfComputerPlayers, setNumberOfComputerPlayers ] = useState(0)
     const [ addComputerButtonDisabled, setAddComputerButtonDisabled ] = useState(false)
+    const [ textInputsDisabled, setTextInputsDisabled ] = useState(false)
     const ENDPOINT = "https://card-school-server.herokuapp.com/"
     // const ENDPOINT = "localhost:5000"
     const computerPlayers = [
@@ -50,7 +51,9 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
         setJoined(true)
         socket.emit("join-room", { name, room, isComputer: false }, (error) => {
             console.log("error:", error)
+            setTextInputsDisabled(true)
             if(error[0] !== null){
+                setTextInputsDisabled(false)
                 alert("Username is taken please type another one!")
                 document.getElementById("name-input").value = ""
             }  
@@ -96,11 +99,11 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 
             <button className="home-button" onClick={() => setCurrentGame("")}>Home</button><br/>
 
-            <input disabled={joined} id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
+            <input disabled={textInputsDisabled} id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
             
-            <input disabled={joined} type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
+            <input disabled={textInputsDisabled} type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
 
-            <button disabled={joined} className="set-up-button" onClick={() => handleJoinRoom()}>Join Room</button>
+            <button disabled={textInputsDisabled} className="set-up-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
             <button disabled={addComputerButtonDisabled} className="set-up-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
             {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
