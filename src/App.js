@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 import GameTwentyOne from './components/GameTwentyOne/GameTwentyOne.js';
 import GameSnap from './components/GameSnap/GameSnap.js';
@@ -10,7 +10,15 @@ function App() {
 	const [currentGame, setCurrentGame] = useState("");
 	const [ name, setName ] = useState("")
 	const [ room, setRoom ] = useState("")
-	const [ players, setPlayers ] = useState([])
+	const [ players, setPlayers ] = useState(["hi"])
+
+	useEffect(() => {
+		console.log("APP re started");
+	}, [])
+
+	useEffect(() => {
+		console.log("APP players", players);
+	})
 
 	return (
 		<div className="App">

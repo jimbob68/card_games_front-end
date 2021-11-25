@@ -15,8 +15,8 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     const [ numberOfComputerPlayers, setNumberOfComputerPlayers ] = useState(0)
     const [ addComputerButtonDisabled, setAddComputerButtonDisabled ] = useState(false)
     const [ textInputsDisabled, setTextInputsDisabled ] = useState(false)
-    const ENDPOINT = "https://card-school-server.herokuapp.com/"
-    // const ENDPOINT = "localhost:5000"
+    // const ENDPOINT = "https://card-school-server.herokuapp.com/"
+    const ENDPOINT = "localhost:5000"
     const computerPlayers = [
         {name: "bobby", room, isComputer: true, computerId: 1},
         {name: "nobby", room, isComputer: true, computerId: 2},
@@ -25,6 +25,14 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 ]    
 
     const randomComputerNames = ["Hugo", "Lennon", "Hank", "Conroy", "Felix", "River", "Neo", "Jasper", "August", "Evander", "Floyd", "Lloyd", "Kingston", "Hayden", "Rhys", "Leo", "Jose", "Dominic", "Margaret", "Georgia", "Quinn", "Austin", "Sergio", "Marco", "Flint", "Gerald", "Conan", "Jules", "Roman", "Tristan", "Becca", "Pascal", "Warwick", "Eloise", "Dionne", "Jamila", "Faye", "Moira", "Agnes", "Senga", "Poppy", "Violet", "Arial", "Emmy", "Hazel", "Charmaine", "Chantelle", "Fleur", "Hope", "Esme", "Gracie", "Amelia", "Ivy", "Beatrix", "Henry", "Norman", "Miriam", "Edith", "Frank", "Monty", "Nola", "Florence", "Gemini"]
+
+    useEffect(() => {
+        console.log("rendered!", startGame)
+    }, [])
+
+    useEffect(() => {
+        console.log("startGame CHANGED!", startGame)
+    }, [startGame])
 
     useEffect(() => {
         if(joined){
@@ -99,6 +107,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
 
             <button className="home-button" onClick={() => setCurrentGame("")}>Home</button><br/>
 
+
             <input disabled={textInputsDisabled} id="name-input" type="text" placeholder="Name" value={name} onChange={(event) => setName(event.target.value)}/>
             
             <input disabled={textInputsDisabled} type="text" placeholder="Room" value={room} onChange={(event) => setRoom(event.target.value)}/>
@@ -106,13 +115,14 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
             <button disabled={textInputsDisabled} className="set-up-button" onClick={() => handleJoinRoom()}>Join Room</button>
 
             <button disabled={addComputerButtonDisabled} className="set-up-button" onClick={() => handleAddComputerPlayer()}>Add Computer Player</button>
-            {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} setStartGame={setStartGame}/>}
+            {joined && <PlayersList socket={socket} players={players} setPlayers={setPlayers} startGame={startGame}/>}
             <br/>
 
             <button className="set-up-button" onClick={() => handleStartGame()}>Start Game</button>
             </div>}
-
-            {startGame && <NominationWhist setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room}  />}
+            {/* {socket && <PlayersList socket={socket} players={players} setPlayers={setPlayers} startGame={startGame}/>} */}
+            
+            {startGame && <NominationWhist setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room} name={name} />}
 
         </div>
     )

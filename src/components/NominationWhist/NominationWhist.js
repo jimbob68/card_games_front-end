@@ -5,7 +5,13 @@ import WhistResultsModal from "./WhistResultsModal.js"
 import RulesOfNominationWhist from "./RulesOfNominationWhist.js"
 import AlertModal from './AlertModal.js'
 
-const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) => {
+import io from "socket.io-client" // added
+const ENDPOINT = "localhost:5000" // added
+let newSocket //added
+
+
+
+const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame, name }) => {
 
     const [ deckOfCards, setDeckOfCards ] = useState([])
     const [ numberOfPlayers, setNumberOfPlayers ] = useState(players.length)
@@ -33,7 +39,70 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
     //     event.returnValue = ""
     // }
 
+    const [ localPlayers, setLocalPlayers ] = useState(players)
+
+    const gameState = {
+        players: players,
+        activePlayer: activePlayer,
+        predictionPlayer: predictionPlayer,
+        cardPot: cardPot,
+        currentRound: currentRound,
+        currentHandNumber: currentHandNumber,
+        trickPrediction: trickPrediction,
+        roundScores: roundScores,
+        totalScores: totalScores,
+        gameScores: gameScores,
+        room: room,
+        name: name
+    }
+
+    const meh = () => { //added!!!!!!!!!!!
+        // newSocket = io(ENDPOINT, {
+        //     transports: ["websocket"]
+        // })
+        console.log("on creation2!!!!", socket.id)
+        console.log("on creation whole socket2!!!!", socket)
+        players.forEach(player => {
+            if(player.name === name) player.id = socket.id
+        })
+        console.log("new PLAYERS", players)
+
+        socket.emit("join-room", { name, room, isComputer: false }, (player) =>{
+            console.log(player)
+            setPlayers([...players])
+            console.log("new PLAYERS2222222", players)
+
+        })
+    }
+
     useEffect(() => {
+        console.log("players changed", players)
+    }, [players])
+
+    useEffect(() => {
+        console.log("in useEffect!!!!!!!!!", socket.id);
+    },[socket.id]) //added!!!!!!!!!!
+
+    useEffect(() => {
+        socket.on('disconnect', () => {     //added!!!!!!!!!!
+            console.log("on DISCONNECT!!!!!", socket.id)
+            // meh()
+        })  
+        socket.on('connect', () => { //added!!!!!!!!!!
+            console.log("ON CONNECT!!!!!", socket.id)
+            meh()
+            socket.emit("send-game-state", gameState, () =>{
+
+            })
+        })  
+        // if(newSocket){
+        //     newSocket.on('connect', () => console.log(" NEWWWWWW !!!!!! ON CONNECT!!!!!", newSocket.id))  //added!!!!!!!!!!
+        // }
+    },[newSocket])
+
+
+    useEffect(() => {
+
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
         })
@@ -92,6 +161,9 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
                     computerPlayCard(players[activePlayer - 1])
                 }                 
             } 
+
+            // setLocalPlayers(players) // added
+            console.log("local players updated", players)
     }, [cardPot])
 
     useEffect(() =>{
@@ -467,7 +539,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
         }
     }
 
-    const displayPotCards = (hand) => {
+    const displayPotCards = (hand) => { //changed
         const cardImages = hand.map((card) => {
             return <div className="player-card-container">
                 <img className={imageSize} src={card.image} alt={card.code} />
@@ -517,7 +589,8 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
         socket.emit("update-predictions", {trickPrediction, nextPredictionPlayer: randomPlayer, room})
     }
 
-    const displayPrediction = (playerNumber) => {
+    const displayPrediction = (playerNumber) => { //changed
+        console.log("players ERROR", players)
         const prediction = trickPrediction[players[playerNumber].name]
         if(prediction >= 0){
             return prediction
@@ -566,11 +639,29 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
         setWhistAlertModalIsOpen(true)
     }
 
+    
+
     return(
         <div>
             <h1 className="whist-game-title">Nomination Whist</h1>
             <button className="home-button" onClick={() => handleClickHome()}>Home</button>
             <button onClick={() => setWhistRulesModalIsOpen(true)}>Rules</button>
+            <button className="home-button" onClick={() => {
+                // console.log("id", socket.id)
+                // socket.emit("log-players") 
+                socket.disconnect()
+            }}>DISCONNECT</button><br/> {/* added!!!!!!!!!!!!!!!! */}
+            <button className="home-button" onClick={() => {
+                let socket = io(ENDPOINT, {
+                    transports: ["websocket"]
+                })
+                console.log("on creation!!!!", socket.id)
+                console.log("on creation whole socket!!!!", socket)
+                socket.emit("join-room", { name, room, isComputer: false }, (player) =>console.log(player))
+            }
+            }>CONNECT</button>
+
+
 
             <select value={imageSize} onChange={(event) => {
 				setImageSize(event.target.value)}}>
