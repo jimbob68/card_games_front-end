@@ -15,8 +15,8 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
     const [ numberOfComputerPlayers, setNumberOfComputerPlayers ] = useState(0)
     const [ addComputerButtonDisabled, setAddComputerButtonDisabled ] = useState(false)
     const [ textInputsDisabled, setTextInputsDisabled ] = useState(false)
-    const ENDPOINT = "https://card-school-server.herokuapp.com/"
-    // const ENDPOINT = "localhost:5000"
+    // const ENDPOINT = "https://card-school-server.herokuapp.com/"
+    const ENDPOINT = "localhost:5000"
     const computerPlayers = [
         {name: "bobby", room, isComputer: true, computerId: 1},
         {name: "nobby", room, isComputer: true, computerId: 2},

@@ -4,6 +4,10 @@ import backOfCard from '../../assets/back_of_card.png'
 import WhistResultsModal from "./WhistResultsModal.js"
 import RulesOfNominationWhist from "./RulesOfNominationWhist.js"
 import AlertModal from './AlertModal.js'
+import db from '../../FirebaseConfig.js'
+import { collection, getDocs, setDoc, where, query, doc } from 'firebase/firestore';
+
+
 
 const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) => {
 
@@ -34,6 +38,14 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
     // }
 
     useEffect(() => {
+        socket.on("connect", async () => {
+            // const gameData = await getDocs(collection(db, "round-data")).where("room", "==", room)
+            const gameData = await getDocs(query(collection(db, "round-data"), where("room", "==", room)))
+            gameData.forEach(doc => {
+                console.log("doc.data:", doc.data())
+            })
+            // console.log("gameData:", gameData.data())
+        })
         socket.on("hand", ({hand}) => {
             setPlayerOneHand(hand)
         })
@@ -67,6 +79,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
        if(players[0].id === socket.id) {
            randomStartPlayer()
        }
+    //    const res = db.collection("round-data").doc(socket.id).set({name: "james"})
        createPlayerScores()	
 	}, []);
 
@@ -75,11 +88,22 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
     }, [currentRound])
 
     useEffect(() => {
-        if(currentRound === 0 ) {
-            handleDealCards(1)
-        } else {
-            handleDealCards(currentRound)
+        if(currentRound === 1) {
+            const id = players[0].name + room
+            // const roundData = collection(db, "round-data")
+            // const docRef = setDoc(roundData, { players: players, startingPlayer: startingPlayer, totalScores: totalScores, currentRound: currentRound, room: room }, id)
+            const docRef = setDoc(doc(db, "round-data", id), { players: players, startingPlayer: startingPlayer, totalScores: totalScores, currentRound: currentRound, room: room })
+            // const docRef = setDoc(roundData, { thing: "hi" }, "bob")
+            // const docRef = addDoc(roundData, { thing: "hi" })
+            console.log("totalScores:", totalScores)
+
         }
+
+        // if(currentRound === 0 ) {
+        //     handleDealCards(1)
+        // } else {
+            handleDealCards(currentRound)
+        // }
 
     }, [deckOfCards])
 
@@ -87,19 +111,18 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
         if(cardPot.length === numberOfPlayers){
             handleEndHand()
         }
-           if(players[activePlayer - 1].isComputer && predictionPlayer === 0 && players[0].id === socket.id){
-                if(cardPot.length < players.length){
-                    computerPlayCard(players[activePlayer - 1])
-                }                 
-            } 
+        if(players[activePlayer - 1].isComputer && predictionPlayer === 0 && players[0].id === socket.id){
+            if(cardPot.length < players.length){
+                computerPlayCard(players[activePlayer - 1])
+            }                 
+        } 
     }, [cardPot])
 
     useEffect(() =>{
         if(cardPot.length === players.length){
             setTimeout(() => {
                 setCardPot([])
-            }, 2000) // 1000
-            
+            }, 2000) // 1000            
         }
     }, [activePlayer])
 
@@ -368,18 +391,26 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
             }, 1500) // 1000
         }
         const currentStartingPlayer = startingPlayer
+        const id = players[0].name + room
         if(startingPlayer === players.length){
             setPredictionPlayer(1)
             setStartingPlayer(1)
             setActivePlayer(1)
             socket.emit("get-next-player", {activePlayer: 1, room, predictionPlayer})
             socket.emit("update-predictions", {trickPrediction: {}, nextPredictionPlayer: 1, room})
+            // const roundData = collection(db, "round-data")
+            // const docRef = setDoc(roundData, { players: players, startingPlayer: 1, totalScores: newTotalScores, currentRound: currentRound, room: room }, id)
+            const docRef = setDoc(doc(db, "round-data", id), { players: players, startingPlayer: 1, totalScores: newTotalScores, currentRound: currentRound, room: room })
         }else{
             setPredictionPlayer(currentStartingPlayer + 1)
             setStartingPlayer(currentStartingPlayer + 1)
             setActivePlayer(currentStartingPlayer + 1)
             socket.emit("get-next-player", {activePlayer: currentStartingPlayer + 1, room, predictionPlayer})
             socket.emit("update-predictions", {trickPrediction: {}, nextPredictionPlayer: currentStartingPlayer + 1, room})
+            // const roundData = collection(db, "round-data")
+            // const docRef = setDoc(roundData, { players: players, startingPlayer: currentStartingPlayer + 1, totalScores: newTotalScores, currentRound: currentRound, room: room }, id)
+            const docRef = setDoc(doc(db, "round-data", id), { players: players, startingPlayer: currentStartingPlayer + 1, totalScores: newTotalScores, currentRound: currentRound, room: room })
+
         }
         setCurrentPrediction("")
         setCurrentHandNumber(1)
