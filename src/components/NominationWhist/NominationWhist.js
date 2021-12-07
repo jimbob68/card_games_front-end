@@ -5,11 +5,11 @@ import WhistResultsModal from "./WhistResultsModal.js"
 import RulesOfNominationWhist from "./RulesOfNominationWhist.js"
 import AlertModal from './AlertModal.js'
 import db from '../../FirebaseConfig.js'
-import { collection, getDocs, setDoc, where, query, doc } from 'firebase/firestore';
+import { collection, getDoc, setDoc, where, query, doc } from 'firebase/firestore';
 
 
 
-const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) => {
+const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame, name }) => {
 
     const [ deckOfCards, setDeckOfCards ] = useState([])
     const [ numberOfPlayers, setNumberOfPlayers ] = useState(players.length)
@@ -38,16 +38,44 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
     // }
 
     useEffect(() => {
+        // socket.on("disconnect", () => {
+        //     setCardPot([])
+        // })
         socket.on("connect", async () => {
-            // const gameData = await getDocs(collection(db, "round-data")).where("room", "==", room)
-            const gameData = await getDocs(query(collection(db, "round-data"), where("room", "==", room)))
-            gameData.forEach(doc => {
-                console.log("doc.data:", doc.data())
+            socket.emit("join-room", { name, room, isComputer: false }, (error) => {
             })
-            // console.log("gameData:", gameData.data())
+            players.forEach(player => {
+                if(player.isComputer === true) {
+                    socket.emit("join-room", { name: player.name, room, isComputer: true, computerId: player.id }, (error) => {
+                    })  
+                }
+            })
+            // const gameData = await getDocs(collection(db, "round-data")).where("room", "==", room)
+            // const gameData = await getDocs(query(collection(db, "round-data"), where("room", "==", room)))
+            // let retrievedGameData
+            // gameData.forEach(doc => {
+            //     console.log("doc.data:", doc.data())
+            //     retrievedGameData = doc.data()
+            // })
+
+
+            const retrievedGameData = await getDoc(doc(db, "round-data", players[0].name + room))
+            setTotalScores(retrievedGameData.totalScores)
+            setCardPot([])
+            setTrickPrediction({})
+            setPredictionPlayer(retrievedGameData.startingPlayer)
+            setPlayers(retrievedGameData.players)
+            const startingRoundScores = {}
+            retrievedGameData.players.forEach(player => {
+                startingRoundScores[player.name] = 0
+            })
+            setRoundScores({...startingRoundScores})
+            if(retrievedGameData.players[0].name === name)fetchCards()
         })
-        socket.on("hand", ({hand}) => {
-            setPlayerOneHand(hand)
+        socket.on("hand", ({hand, handName}) => {
+            if(handName === name){
+                setPlayerOneHand(hand)
+            }            
         })
         socket.on("set-next-player", ({nextPlayer, firstPlayer}) => {
             console.log("nextPlayer", nextPlayer)
@@ -69,14 +97,14 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
                 setCardPot([...cardPot])
             }else {
                 setPredictionPlayer(nextPredictionPlayer)
-                if(players[nextPredictionPlayer - 1].isComputer === true && players[0].id === socket.id){
+                if(players[nextPredictionPlayer - 1].isComputer === true && players[0].name === name){
                     setTimeout(() => {                  
                         computerPrediction(players[nextPredictionPlayer - 1], newPrediction, nextPredictionPlayer)
                     }, 2000) // 2000
                 }
             }
         })
-       if(players[0].id === socket.id) {
+       if(players[0].name === name) {
            randomStartPlayer()
        }
     //    const res = db.collection("round-data").doc(socket.id).set({name: "james"})
@@ -84,7 +112,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
 	}, []);
 
     useEffect(() => {
-       if(players[0].id === socket.id)fetchCards(1)
+       if(players[0].name === name)fetchCards(1)
     }, [currentRound])
 
     useEffect(() => {
@@ -111,7 +139,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
         if(cardPot.length === numberOfPlayers){
             handleEndHand()
         }
-        if(players[activePlayer - 1].isComputer && predictionPlayer === 0 && players[0].id === socket.id){
+        if(players[activePlayer - 1].isComputer && predictionPlayer === 0 && players[0].name === name){
             if(cardPot.length < players.length){
                 computerPlayCard(players[activePlayer - 1])
             }                 
@@ -154,7 +182,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
             if(player.isComputer === true && playerCards.length !== 0){
                 player.hand = sortedPlayerHand
             } else {
-                socket.emit("player-hand", {playerId: player.id, hand: sortedPlayerHand}) 
+                socket.emit("player-hand", {name: player.name, room: room, hand: sortedPlayerHand}) 
             }
             setPlayers([...players])
         })
@@ -344,12 +372,12 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
         if(hasPlayedCard){
             return
         }
-        if(socket.id === players[activePlayer - 1].id && (card.suit !== selectedSuit && hasSelectedSuit)){
+        if(name === players[activePlayer - 1].name && (card.suit !== selectedSuit && hasSelectedSuit)){
             setErrorText("Please Play " + selectedSuit)
             setWhistAlertModalIsOpen(true)
             return
         }
-        if(socket.id === players[activePlayer - 1].id || players[activePlayer - 1].isComputer === true){
+        if(name === players[activePlayer - 1].name || players[activePlayer - 1].isComputer === true){
             card.player = activePlayer
             if(players[activePlayer - 1].isComputer){
                 players[activePlayer - 1].hand.splice(cardIndex, 1)
@@ -490,7 +518,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
             setWhistAlertModalIsOpen(true)
             return 
         }
-        if(players[activePlayer - 1].id === socket.id){
+        if(players[activePlayer - 1].name === name){
             handleSelectCard(card, index, hand)
         } else {
             setErrorText("Wait your turn!!!")
@@ -509,7 +537,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
     }
 
     const getPlayerName = () => {
-        const player = players.find(player => player.id === socket.id) 
+        const player = players.find(player => player.name === name) 
         return player.name   
     }
 
@@ -640,7 +668,7 @@ const NominationWhist = ({ players, setPlayers, socket, room, setCurrentGame }) 
             {!players[activePlayer - 1] && <p className="whist-player-turn-name">Player Turn:</p>}
 
             {displayPotCards(cardPot)}
-            {predictionPlayer > 0 && socket.id === players[predictionPlayer - 1].id && <div>
+            {predictionPlayer > 0 && name === players[predictionPlayer - 1].name && <div>
             {displayPredictionDropdown()}
             <button className="confirm-prediction-button"disabled={currentPrediction === ""} onClick={ () => handleConfirmPrediction()} >Confirm Prediction</button>
             </div>} 

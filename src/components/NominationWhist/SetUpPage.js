@@ -112,7 +112,7 @@ const SetUpPage = ({ setCurrentGame, currentGame, setName, setRoom, name, room, 
             <button className="set-up-button" onClick={() => handleStartGame()}>Start Game</button>
             </div>}
 
-            {startGame && <NominationWhist setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room}  />}
+            {startGame && <NominationWhist setCurrentGame={setCurrentGame} players={players} setPlayers={setPlayers} socket={socket} room={room} name={name}  />}
 
         </div>
     )
